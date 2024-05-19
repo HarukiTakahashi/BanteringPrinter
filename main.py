@@ -4,18 +4,21 @@ import pygame
 import random
 import time
 from printer import Printer
-from scene_base import Scene
 from before_printing import BeforePrinting
 from during_printing import DuringPrinting
+from after_printing import AfterPrinting
+
 
 printer = None # Printerクラスのインスタンス
-scene_stat = 0 # シーンの状態管理
 scenes = []
 
 gcode_folder_path = ""
 
 def main():
     global printer, gcode_folder_path
+
+    scene_stat = 0 # シーンの状態管理
+
     # 初期化
     pygame.init()
 
@@ -34,8 +37,8 @@ def main():
 
     # Printerクラスのインスタンス化
     printer = Printer()
-    printer.connect()
-    printer.start_reading()
+    #printer.connect()
+    #printer.start_reading()
 
     
     # Scene 作成
@@ -45,6 +48,9 @@ def main():
     
     s_during = DuringPrinting(screen)
     s_during.set_printer(printer)
+    
+    s_after = AfterPrinting(screen)
+
 
     # プログラムのメイン関数
     while True:
@@ -63,16 +69,25 @@ def main():
             
             if pressed:
                 s_before.stop()
-                printer.open_gcode_file("gcode/" + s_before.get_file())
-                printer.start_printing()
+                #printer.open_gcode_file("gcode/" + s_before.get_file())
+                #printer.start_printing()
                 scene_stat = 1
                 
-        if scene_stat == 1:
+        elif scene_stat == 1:
             # 造形中の状態
             s_during.draw()
             
-            if pressed:
-                s_during.stop()
+            if pressed: 
+                s_during.press()
+                scene_stat = 2
+        
+        elif scene_stat == 2:
+            s_after.draw()
+            
+            if pressed: 
+                s_after.press()
+                s_before.active = True
+                scene_stat = 0
         
         pygame.time.Clock().tick(60)
         

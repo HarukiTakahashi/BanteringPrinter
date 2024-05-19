@@ -27,20 +27,19 @@ class DuringPrinting(Scene):
         font = pygame.font.Font(None, 36)
             
         self.screen.fill((255, 255, 255))
-        for i, item in enumerate(self.items):
-            rect = pygame.Rect(100, 100,width - 200, 400)
-            color = (0, 0, 0)
-            bg_color = (255, 255, 255)
-                
-            pygame.draw.rect(self.screen, bg_color, rect)
-            text_surface = font.render("造形中！", True, color)
-            text_rect = text_surface.get_rect(center=rect.center)
-            self.screen.blit(text_surface, text_rect)
+        rect = pygame.Rect(100, 100,width - 200, 400)
+        color = (0, 0, 0)
+        bg_color = (255, 255, 255)
+            
+        pygame.draw.rect(self.screen, bg_color, rect)
+        text_surface = font.render("Now Printing!", True, color)
+        text_rect = text_surface.get_rect(center=rect.center)
+        self.screen.blit(text_surface, text_rect)
         pygame.display.flip()
         
-    def stop(self):
-        self.active = False
-        print(self.items[self.highlight_index])
-        
+
+    def press(self):
+        print("!!!")
+       
     def get_file(self):
         return self.items[self.highlight_index]

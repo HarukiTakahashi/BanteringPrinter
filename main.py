@@ -1,4 +1,5 @@
 import os, sys
+from pathlib import Path
 import pygame
 import random
 import time
@@ -28,7 +29,7 @@ def main():
     font = pygame.font.Font(None, 36)
 
     # フォルダ内のファイルパスを取得
-    gcode_folder_path = "gcode"  # フォルダのパスを設定
+    gcode_folder_path = "./gcode"  # フォルダのパスを設定
     items = [f for f in os.listdir(gcode_folder_path) if os.path.isfile(os.path.join(gcode_folder_path, f))]
 
     # Printerクラスのインスタンス化
@@ -68,10 +69,10 @@ def main():
                 
         if scene_stat == 1:
             # 造形中の状態
-            s_before.draw()
+            s_during.draw()
             
             if pressed:
-                s_before.stop()
+                s_during.stop()
         
         pygame.time.Clock().tick(60)
         

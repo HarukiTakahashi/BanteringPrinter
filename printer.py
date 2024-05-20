@@ -79,8 +79,8 @@ class Printer():
     # シリアル読み込み ================================
     def serial_read(self):
         while True:
-            time.sleep(0.0001)
-            print("BUF NUM : " + str(self.command_buffer))
+            time.sleep(0.001)
+            #print("BUF NUM : " + str(self.command_buffer))
                         
             try:
                 data = self.serial.readline()
@@ -124,7 +124,18 @@ class Printer():
             print("comment!!!")
             return
         
-        self.serial.write(data)
+        try:
+            self.serial.write(data)
+        except serial.SerialException as e:
+            #There is no new data from serial port
+            print("E - serial.SerialException when forcely sending")
+            return None
+        except TypeError as e:
+            #Disconnect of USB->UART occured
+            print("E - Type error when forcely sending")
+            #self.serial.port.close()
+            return None
+
         self.command_buffer += 1
         print(datetime.datetime.now(), " SEND >>> ", data.decode('utf-8').strip())
  
@@ -155,7 +166,19 @@ class Printer():
                 if data.decode('utf-8').find("M109") != -1 or data.decode('utf-8').find("M190") != -1:
                     self.is_waiting = True
                     
-                self.serial.write(data)
+                try:
+                    self.serial.write(data)
+                except serial.SerialException as e:
+                    #There is no new data from serial port
+                    print("E - serial.SerialException when sending")
+                    #return None
+                    continue
+                except TypeError as e:
+                    #Disconnect of USB->UART occured
+                    print("E - Type error when sending")
+                    #self.serial.port.close()
+                    #return None
+                    continue
                 
                 print(datetime.datetime.now(),   " SEND >>> ", data.decode('utf-8').strip())
                 

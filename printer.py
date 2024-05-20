@@ -4,7 +4,8 @@ import time, datetime
 import threading
 
 class Printer():
-    COMMAND_BUFFER_MAX = 5
+    COMMAND_BUFFER_MAX = 8
+    DEFAULT_FEEDRATE = 100
     event = threading.Event()
 
     def __init__(self):
@@ -20,6 +21,7 @@ class Printer():
         self.gcode = []
         
         self.is_printing = False
+        self.is_waiting = False
         self.enable_check_temp = False
         self.feedrate = 100
 
@@ -49,21 +51,32 @@ class Printer():
             print("error when opening serial")
             return None
 
+    # 造形プロセス制御 ================================
     def printing(self):
         self.is_printing = True
 
         for g in self.gcode:
-            self.serial_send(g)
+            self.serial_send(g.strip())
         print("DONE")
+        self.command_buffer = 0
+        self.feedrate = Printer.DEFAULT_FEEDRATE
+        self.change_feedrate(self.feedrate)
         self.is_printing = False
     
+    # feedrateの変更 ================================
     def change_feedrate(self, per):
+        if self.is_waiting:
+            print("WAITING!!!")
+            return    
+        
         print("===== change feedrate ===== ")
         g = "M220 S" + str(per)
         self.serial_force_send(g)
         
         self.feedrate = per
+        time.sleep(0.01) # いるかな？
     
+    # シリアル読み込み ================================
     def serial_read(self):
         while True:
             time.sleep(0.001)
@@ -87,11 +100,18 @@ class Printer():
 
                 # 命令を処理し終えたら "ok" が返ってくる
                 if ret.find("ok") != -1:
+                    self.is_waiting = False
                     self.command_buffer -= 1
                     if self.command_buffer < 0:
                         self.command_buffer = 0
 
+     # シリアル強制送信 ================================
     def serial_force_send(self, data: str):
+        if self.is_waiting:
+            print("WAITING!!!")
+            return
+    
+        data = data.strip()
         if len(data) == 0:
             return
         if data.find(";") == 0:
@@ -105,59 +125,45 @@ class Printer():
             return
         
         self.serial.write(data)
+        self.command_buffer += 1
         print(datetime.datetime.now(), " SEND >>> ", data.decode('utf-8').strip())
  
+     # シリアル送信 ================================
     def serial_send(self, data: str):
-
+        data = data.strip()
         if len(data) == 0:
             return
-
         if data.find(";") == 0:
             return
-
         pos = data.find(";")
         if pos != -1:
             data = data[:pos]
 
-
-        # todo : ok を返すコマンドを調べる
+        # todo : M109, M190のときはストップ
         data = bytes(data+ "\r\n", encoding = "utf-8")
     
         start_time = time.time()
         while True:
-            time.sleep(0.001)
+            time.sleep(0.01)
             #print("buf",self.command_buffer)
 
             if self.command_buffer < Printer.COMMAND_BUFFER_MAX:
                 self.command_buffer += 1
                 
+                if data.decode('utf-8').find("M109") != -1 or data.decode('utf-8').find("M190") != -1:
+                    self.is_waiting = True
+                    
                 self.serial.write(data)
                 
                 print(datetime.datetime.now(),   " SEND >>> ", data.decode('utf-8').strip())
+                
+                
                 return True
             if time.time() - start_time > 1000:
                 print("Time out")
                 print(data.decode('utf-8'))
                 break
     
-        return False
-
-    def check_buffering(self, g: str):
-        if g.find("G0") == 0:
-            return True
-        if g.find("G1") == 0:
-            return True
-        if g.find("G2") == 0:
-            return True
-        if g.find("G3") == 0:
-            return True
-        if g.find("G4") == 0:
-            return True
-        if g.find("G6") == 0:
-            return True
-        if g.find("G10") == 0:
-            return True
-
         return False
 
     def check_temperature(self):

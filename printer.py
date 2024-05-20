@@ -74,7 +74,7 @@ class Printer():
         self.serial_force_send(g)
         
         self.feedrate = per
-        time.sleep(0.01) # いるかな？
+        # time.sleep(0.01) # いるかな？
     
     # シリアル読み込み ================================
     def serial_read(self):

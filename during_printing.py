@@ -15,9 +15,7 @@ class DuringPrinting(Scene):
     def __init__(self, s):
         super().__init__(s)
         self.name = "DuringPrinting"
-    
-    def set_printer(self,p):
-        self.printer = p
+        self.gcode_file_name = ""
     
     def draw(self):
         
@@ -30,16 +28,19 @@ class DuringPrinting(Scene):
         rect = pygame.Rect(100, 100,width - 200, 400)
         color = (0, 0, 0)
         bg_color = (255, 255, 255)
-            
+
         pygame.draw.rect(self.screen, bg_color, rect)
         text_surface = font.render("Now Printing!", True, color)
         text_rect = text_surface.get_rect(center=rect.center)
         self.screen.blit(text_surface, text_rect)
         pygame.display.flip()
-        
+
+    def is_printing(self):
+        return self.printer.is_printing()
+
 
     def press(self):
         print("!!!")
        
-    def get_file(self):
-        return self.items[self.highlight_index]
+    def set_gcode_file_name(self, f):
+        self.gcode_file_name = f

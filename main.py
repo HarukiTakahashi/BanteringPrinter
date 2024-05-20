@@ -37,9 +37,9 @@ def main():
 
     # Printerクラスのインスタンス化
     printer = Printer()
-    #printer.connect()
-    #printer.start_reading()
-
+    printer.connect()
+    printer.start_reading()
+    printer.start_checking_temp()
     
     # Scene 作成
     s_before = BeforePrinting(screen)
@@ -69,19 +69,27 @@ def main():
             
             if pressed:
                 s_before.stop()
-                #printer.open_gcode_file("gcode/" + s_before.get_file())
-                #printer.start_printing()
+                fname = s_before.get_file()
+                s_during.set_gcode_file_name(fname)
+                printer.open_gcode_file("gcode/" + fname)
+                printer.start_printing()
                 scene_stat = 1
                 
         elif scene_stat == 1:
             # 造形中の状態
             s_during.draw()
-            
+
+            # 造形完了
+            if not printer.is_printing:
+                print("done")
+                scene_stat = 2
+
             if pressed: 
                 s_during.press()
-                scene_stat = 2
+                
         
         elif scene_stat == 2:
+            # 造形後の状態
             s_after.draw()
             
             if pressed: 

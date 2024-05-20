@@ -16,4 +16,5 @@ class Scene():
     def draw(self):
         pass
         
-    
+    def set_printer(self,p):
+        self.printer = p

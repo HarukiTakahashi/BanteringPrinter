@@ -16,9 +16,11 @@ class Printer():
         self.serial.baudrate = "115200"
         self.stat = 0 # 現在の3Dプリンタの状態
 
+        self.gcode_file_name = None
         self.gcode = []
         
-        self.isPrinting = False
+        self.is_printing = False
+        self.enable_check_temp = False
         self.feedrate = 100
 
     def connect(self):
@@ -48,19 +50,12 @@ class Printer():
             return None
 
     def printing(self):
-        self.isPrinting = True
+        self.is_printing = True
 
         for g in self.gcode:
-            pos = g.find(";")
-            if pos != -1:
-                g = g[:pos]
-
-            if len(g) == 0:
-                continue
-
             self.serial_send(g)
         print("DONE")
-        self.isPrinting = False
+        self.is_printing = False
     
     def change_feedrate(self, per):
         print("===== change feedrate ===== ")
@@ -71,7 +66,8 @@ class Printer():
     
     def serial_read(self):
         while True:
-            time.sleep(0.01)
+            time.sleep(0.001)
+            print("BUF NUM : " + str(self.command_buffer))
                         
             try:
                 data = self.serial.readline()
@@ -96,6 +92,13 @@ class Printer():
                         self.command_buffer = 0
 
     def serial_force_send(self, data: str):
+        if len(data) == 0:
+            return
+        if data.find(";") == 0:
+            return
+        pos = data.find(";")
+        if pos != -1:
+            data = data[:pos]
         data = bytes(data+ "\r\n", encoding = "utf-8")
         if data.decode('utf-8').find(";") == 0:
             print("comment!!!")
@@ -105,39 +108,76 @@ class Printer():
         print(datetime.datetime.now(), " SEND >>> ", data.decode('utf-8').strip())
  
     def serial_send(self, data: str):
-        data = bytes(data+ "\r\n", encoding = "utf-8")
-        
-        if data.decode('utf-8').find(";") == 0:
-            print("comment!!!")
-            return
-        
-        start_time = time.time()
 
+        if len(data) == 0:
+            return
+
+        if data.find(";") == 0:
+            return
+
+        pos = data.find(";")
+        if pos != -1:
+            data = data[:pos]
+
+
+        # todo : ok を返すコマンドを調べる
+        data = bytes(data+ "\r\n", encoding = "utf-8")
+    
+        start_time = time.time()
         while True:
-            time.sleep(0.01)
+            time.sleep(0.001)
             #print("buf",self.command_buffer)
+
             if self.command_buffer < Printer.COMMAND_BUFFER_MAX:
                 self.command_buffer += 1
                 
                 self.serial.write(data)
                 
-                print(datetime.datetime.now(), " SEND >>> ", data.decode('utf-8').strip())
+                print(datetime.datetime.now(),   " SEND >>> ", data.decode('utf-8').strip())
                 return True
-            if time.time() - start_time > 60:
+            if time.time() - start_time > 1000:
                 print("Time out")
+                print(data.decode('utf-8'))
                 break
+    
+        return False
+
+    def check_buffering(self, g: str):
+        if g.find("G0") == 0:
+            return True
+        if g.find("G1") == 0:
+            return True
+        if g.find("G2") == 0:
+            return True
+        if g.find("G3") == 0:
+            return True
+        if g.find("G4") == 0:
+            return True
+        if g.find("G6") == 0:
+            return True
+        if g.find("G10") == 0:
+            return True
 
         return False
 
+    def check_temperature(self):
+        while True:
+            time.sleep(1)
+            if self.enable_check_temp:
+                g = "M105"
+                self.serial_force_send(g)
 
     def start_reading(self):
-        self.thread = threading.Thread(target=self.serial_read)
-        self.thread.start()
+        self.thread_read = threading.Thread(target=self.serial_read)
+        self.thread_read.start()
 
     def start_printing(self):
-        self.thread = threading.Thread(target=self.printing)
-        self.thread.start()
+        self.thread_print = threading.Thread(target=self.printing)
+        self.thread_print.start()
 
+    def start_checking_temp(self):
+        self.thread_temp = threading.Thread(target=self.check_temperature)
+        self.thread_temp.start()
 
     def open_gcode_file(self, path):
         f = open(path, "r")
@@ -149,3 +189,5 @@ class Printer():
 
         self.serial.close()
         print("serial closed")    
+
+    

@@ -4,7 +4,7 @@ import time, datetime
 import threading
 
 class Printer():
-    COMMAND_BUFFER_MAX = 8
+    COMMAND_BUFFER_MAX = 5
     DEFAULT_FEEDRATE = 100
     event = threading.Event()
 
@@ -146,6 +146,8 @@ class Printer():
         while True:
             time.sleep(0.01)
             #print("buf",self.command_buffer)
+            if self.is_waiting:
+                continue
 
             if self.command_buffer < Printer.COMMAND_BUFFER_MAX:
                 self.command_buffer += 1

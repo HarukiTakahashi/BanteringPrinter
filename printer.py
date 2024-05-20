@@ -79,7 +79,7 @@ class Printer():
     # シリアル読み込み ================================
     def serial_read(self):
         while True:
-            time.sleep(0.001)
+            time.sleep(0.0001)
             print("BUF NUM : " + str(self.command_buffer))
                         
             try:

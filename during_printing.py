@@ -41,7 +41,6 @@ class DuringPrinting(Scene):
 
     def press(self):
         self.printer.change_feedrate(self.printer.feedrate + 1)
-        print("!!!")
        
     def set_gcode_file_name(self, f):
         self.gcode_file_name = f

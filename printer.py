@@ -19,6 +19,7 @@ class Printer():
 
         self.gcode_file_name = None
         self.gcode = []
+        self.gcode_printing = []
         
         self.is_printing = False
         self.is_waiting = False
@@ -54,9 +55,18 @@ class Printer():
     # 造形プロセス制御 ================================
     def printing(self):
         self.is_printing = True
+        
+        self.gcode_printing = list(self.gcode)
 
-        for g in self.gcode:
+        # リストを一度コピーしてそこから順番に取り出す処理に
+        while len(self.gcode_printing) > 0:
+            g = self.gcode_printing.pop(0)
             self.serial_send(g.strip())
+
+#        for g in self.gcode:
+#            self.serial_send(g.strip())
+#            time.sleep(0.001)
+            
         print("DONE")
         self.command_buffer = 0
         self.feedrate = Printer.DEFAULT_FEEDRATE
@@ -71,10 +81,20 @@ class Printer():
         
         print("===== change feedrate ===== ")
         g = "M220 S" + str(per)
-        self.serial_force_send(g)
         
+        # self.serial_force_send(g)
+        
+        if self.is_printing:            
+            # 造形中ならリストに追加
+            self.gcode_printing.insert(1, g)
+
+        else:
+            # そうでないなら強制送信
+            self.serial_force_send(g)
+
         self.feedrate = per
         time.sleep(0.1) # いるかな？
+            
     
     # シリアル読み込み ================================
     def serial_read(self):
@@ -182,9 +202,9 @@ class Printer():
                 
                 print(datetime.datetime.now(),   " SEND >>> ", data.decode('utf-8').strip())
                 
-                
                 return True
-            if time.time() - start_time > 1000:
+            
+            if time.time() - start_time > 100:
                 print("Time out")
                 print(data.decode('utf-8'))
                 break

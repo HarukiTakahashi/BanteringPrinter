@@ -186,6 +186,7 @@ class Printer():
                 return True
             if time.time() - start_time > 1000:
                 print("Time out")
+                self.command_buffer -= 1
                 print(data.decode('utf-8'))
                 break
     

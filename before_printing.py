@@ -49,6 +49,8 @@ class BeforePrinting(Scene):
             text_surface = font.render(item, True, color)
             text_rect = text_surface.get_rect(center=rect.center)
             self.screen.blit(text_surface, text_rect)
+        
+        self.drawTemperature()
         pygame.display.flip()
         
     def stop(self):

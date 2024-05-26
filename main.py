@@ -40,9 +40,12 @@ def main():
     printer.connect()
     printer.start_reading()
     printer.start_checking_temp()
+    printer.start_checking_temp()
+    printer.start_controlling_speed()
     
     # Scene 作成
     s_before = BeforePrinting(screen)
+    s_before.set_printer(printer)
     s_before.set_items(items)
     s_before.active = True
     
@@ -50,7 +53,7 @@ def main():
     s_during.set_printer(printer)
     
     s_after = AfterPrinting(screen)
-
+    s_after.set_printer(printer)
 
     # プログラムのメイン関数
     while True:

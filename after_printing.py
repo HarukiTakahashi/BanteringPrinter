@@ -35,6 +35,8 @@ class AfterPrinting(Scene):
         text_surface = font.render("Evaluate the outcome?", True, color)
         text_rect = text_surface.get_rect(center=rect.center)
         self.screen.blit(text_surface, text_rect)
+
+        self.drawTemperature()
         pygame.display.flip()
 
     def press(self):

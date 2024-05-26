@@ -1,4 +1,5 @@
 import serial
+import re
 from serial.tools import list_ports
 import time, datetime
 import threading
@@ -20,6 +21,8 @@ class Printer():
         self.gcode_file_name = None
         self.gcode = []
         self.gcode_printing = []
+        self.nozzle_temp = -1
+        self.bed_temp = -1       
         
         self.is_printing = False
         self.is_waiting = False
@@ -93,7 +96,7 @@ class Printer():
             self.serial_force_send(g)
 
         self.feedrate = per
-        time.sleep(0.1) # いるかな？
+        time.sleep(0.01) # いるかな？
             
     
     # シリアル読み込み ================================
@@ -112,11 +115,18 @@ class Printer():
                 self.serial.port.close()
                 return None
             
-
             if data != b'':
                 ret = data.decode('utf-8')
                 ret = ret.strip()
                 print(datetime.datetime.now(), " <<< RECV ", ret)
+
+                # 温度設定
+                if ret.find("T:") != -1 and ret.find("B:") != -1:
+                    pattern = r'T:([^ ]*)|B:([^ ]*)'
+                    matches  = re.findall(pattern, ret)
+                    results = [match[0] if match[0] else match[1] for match in matches]
+                    self.nozzle_temp = float(results[0])
+                    self.bed_temp = float(results[1])
 
                 # 命令を処理し終えたら "ok" が返ってくる
                 if ret.find("ok") != -1:
@@ -215,9 +225,31 @@ class Printer():
     def check_temperature(self):
         while True:
             time.sleep(1)
-            if self.enable_check_temp:
-                g = "M105"
+
+            g = "M105"
+            if self.is_printing:   
+                # 造形中ならリストに追加
+                self.gcode_printing.insert(1, g)
+            else:
+                # そうでないなら強制送信
                 self.serial_force_send(g)
+
+    def control_speed(self):
+        while True:
+            time.sleep(1)
+
+            if self.feedrate > 50:
+                self.feedrate -= 1
+
+            g = "M220 S" + str(self.feedrate)
+            if self.is_printing:   
+                # 造形中ならリストに追加
+                self.gcode_printing.insert(1, g)
+            else:
+                # そうでないなら強制送信
+                self.serial_force_send(g)
+        
+
 
     def start_reading(self):
         self.thread_read = threading.Thread(target=self.serial_read)
@@ -229,6 +261,10 @@ class Printer():
 
     def start_checking_temp(self):
         self.thread_temp = threading.Thread(target=self.check_temperature)
+        self.thread_temp.start()
+
+    def start_controlling_speed(self):
+        self.thread_temp = threading.Thread(target=self.control_speed)
         self.thread_temp.start()
 
     def open_gcode_file(self, path):

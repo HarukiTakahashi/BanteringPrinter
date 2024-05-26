@@ -32,7 +32,13 @@ class DuringPrinting(Scene):
         pygame.draw.rect(self.screen, bg_color, rect)
         text_surface = font.render("Now Printing!", True, color)
         text_rect = text_surface.get_rect(center=rect.center)
-        self.screen.blit(text_surface, text_rect)
+        self.screen.blit(text_surface, (width//2, 300))
+
+        text_surface = font.render(self.gcode_file_name, True, color)
+        text_rect = text_surface.get_rect(center=rect.center)
+        self.screen.blit(text_surface, (width//2, 350))
+
+        self.drawTemperature()
         pygame.display.flip()
 
     def is_printing(self):

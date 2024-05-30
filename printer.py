@@ -18,9 +18,9 @@ class Printer():
         self.serial.baudrate = "115200"
         self.stat = 0 # 現在の3Dプリンタの状態
 
-        self.gcode_file_name = None
-        self.gcode = []
-        self.gcode_printing = []
+        self.gcode_file_name = None # 造形対象のGcodeファイル名
+        self.gcode = [] # 造形対象のGcode
+        self.gcode_printing = [] # 造形中のGcode
         self.nozzle_temp = -1
         self.bed_temp = -1       
         
@@ -29,6 +29,8 @@ class Printer():
         self.enable_check_temp = False
         self.feedrate = 100
 
+    # 造形プロセス制御 ================================
+    # 接続失敗の場合はNoneが返る
     def connect(self):
         ports = list_ports.comports()    # ポートデータを取得
         devices = [info.device for info in ports]
@@ -108,11 +110,11 @@ class Printer():
             try:
                 data = self.serial.readline()
             except serial.SerialException as e:
-                #There is no new data from serial port
+                # There is no new data from serial port
                 return None
             except TypeError as e:
-                #Disconnect of USB->UART occured
-                self.serial.port.close()
+                # Disconnect of USB->UART occured
+                # self.serial.port.close()
                 return None
             
             if data != b'':

@@ -1,6 +1,7 @@
 import os, sys
 from pathlib import Path
 import pygame
+from pygame.locals import *
 import random
 import time
 from printer import Printer
@@ -11,11 +12,28 @@ from after_printing import AfterPrinting
 
 printer = None # Printerクラスのインスタンス
 scenes = []
+gcode_folder_path = "./gcode" # Gcodeフォルダのパスを設定
 
-gcode_folder_path = ""
+def loadGcodeFiles():
+    global printer, gcode_folder_path
+
+    gcodes = [f for f in os.listdir(gcode_folder_path) if f.endswith('.gcode')]
+    png_files = []
+    
+    for gcode_file in gcodes:
+        base_name = os.path.splitext(gcode_file)[0]  # 拡張子を除いたファイル名
+        corresponding_png = base_name + '.png'
+        if corresponding_png in os.listdir(gcode_folder_path):
+            png_files.append(corresponding_png)
+        else:
+            png_files.append('noimage.png')
+    
+    return gcodes, png_files
+
+
 
 def main():
-    global printer, gcode_folder_path
+    global printer
 
     scene_stat = 0 # シーンの状態管理
 
@@ -23,8 +41,9 @@ def main():
     pygame.init()
 
     # 画面設定
-    width, height = 800, 600
+    width, height = 1920, 1080
     screen = pygame.display.set_mode((width, height))
+    #screen = pygame.display.set_mode((width, height),FULLSCREEN)
     
     pygame.display.set_caption('Title')
 
@@ -32,28 +51,45 @@ def main():
     font = pygame.font.Font(None, 36)
 
     # フォルダ内のファイルパスを取得
-    gcode_folder_path = "./gcode"  # フォルダのパスを設定
-    items = [f for f in os.listdir(gcode_folder_path) if os.path.isfile(os.path.join(gcode_folder_path, f))]
+    gcode_file_list, png_file_list = loadGcodeFiles()
+    print(gcode_file_list)
+    print(png_file_list)
+
+    img_list = []
+
+    # 画像の読み込み
+    for img_file in png_file_list:
+        try:
+            img = pygame.image.load(gcode_folder_path + "/" +img_file)
+            img_list.append(img)
+        except pygame.error as e:
+            print(f"Error loading image {img_file}: {e}")
 
     # Printerクラスのインスタンス化
     printer = Printer()
-    printer.connect()
+    if printer.connect() == None:
+        #print("cannot connect with a 3D printer")
+        pass
+
     printer.start_reading()
     printer.start_checking_temp()
-    printer.start_checking_temp()
     printer.start_controlling_speed()
+
     
     # Scene 作成
+    # 造形開始前のシーン
     s_before = BeforePrinting(screen)
     s_before.set_printer(printer)
-    s_before.set_items(items)
-    s_before.active = True
+    s_before.set_gcode_file(gcode_file_list,img_list)
+    s_before.roulette_active = True
     
     s_during = DuringPrinting(screen)
     s_during.set_printer(printer)
+    s_during.set_gcode_file(gcode_file_list,img_list)
     
     s_after = AfterPrinting(screen)
     s_after.set_printer(printer)
+    s_after.set_gcode_file(gcode_file_list,img_list)
 
     # プログラムのメイン関数
     while True:
@@ -68,10 +104,12 @@ def main():
 
         if scene_stat == 0:
             # 造形前の状態
+
             s_before.draw()
             
             if pressed:
                 s_before.stop()
+
                 fname = s_before.get_file()
                 s_during.set_gcode_file_name(fname)
                 printer.open_gcode_file("gcode/" + fname)
@@ -97,7 +135,7 @@ def main():
             
             if pressed: 
                 s_after.press()
-                s_before.active = True
+                s_before.roulette_active = True
                 scene_stat = 0
         
         pygame.time.Clock().tick(60)

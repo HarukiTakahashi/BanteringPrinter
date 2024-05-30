@@ -12,14 +12,23 @@ class Scene():
         self.name = "base"
         self.active = False
         self.printer = None
-        pass
+
+        self.gcode_file = []
+        self.images = []
     
     def draw(self):
         pass
         
+    # プリンタのインスタンスを設定
     def set_printer(self, p: Printer):
         self.printer = p
 
+    # 造形候補のGcodeファイル名と画像ファイル名を設定
+    def set_gcode_file(self, g: list, img: list):
+        self.gcode_file = list(g)
+        self.images = list(img)
+
+    # プリンタの温度について表示
     def drawTemperature(self):
         font = pygame.font.Font(None, 36)
         width = self.screen.get_width()

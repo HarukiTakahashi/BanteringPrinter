@@ -13,6 +13,7 @@ class Scene():
         self.active = False
         self.printer = None
 
+        self.selected_index = -1
         self.gcode_file = []
         self.images = []
     
@@ -38,15 +39,21 @@ class Scene():
 
         text = "Nozzle temperature : " + str(self.printer.nozzle_temp) + " deg C"
         text_surface = font.render(text, True, (0, 0, 0))
-        text_rect = text_surface.get_rect(center=rect.center)
         self.screen.blit(text_surface, (100,height-100))
 
         text = "Bed temperature : " + str(self.printer.bed_temp) + " deg C"
         text_surface = font.render(text, True, (0, 0, 0))
-        text_rect = text_surface.get_rect(center=rect.center)
         self.screen.blit(text_surface, (100,height-50))
 
         text = "Speed : " + str(self.printer.feedrate) + "%"
         text_surface = font.render(text, True, (0, 0, 0))
-        text_rect = text_surface.get_rect(center=rect.center)
         self.screen.blit(text_surface, (600,height-100))
+
+
+    # TODO: 学生証を読み込んだとき，学生の情報を出す
+    def drawUserInfo(self):
+        pass
+
+
+    def setIndexOfFile(self, i):
+        self.selected_index = i

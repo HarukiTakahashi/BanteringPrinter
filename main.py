@@ -86,6 +86,7 @@ def main():
     s_during = DuringPrinting(screen)
     s_during.set_printer(printer)
     s_during.set_gcode_file(gcode_file_list,img_list)
+    s_during.set_image_button(pygame.image.load("image/button.png"))
     
     s_after = AfterPrinting(screen)
     s_after.set_printer(printer)
@@ -108,12 +109,18 @@ def main():
             s_before.draw()
             
             if pressed:
+                # クリックされた
                 s_before.stop()
 
-                fname = s_before.get_file()
+                # シーン切り替えと造形開始前の処理
+                fname, ind = s_before.get_file()
                 s_during.set_gcode_file_name(fname)
                 printer.open_gcode_file("gcode/" + fname)
                 printer.start_printing()
+ 
+                s_before.setIndexOfFile(ind)
+                s_during.setIndexOfFile(ind)
+                s_after.setIndexOfFile(ind)
                 scene_stat = 1
                 
         elif scene_stat == 1:
@@ -134,7 +141,12 @@ def main():
             s_after.draw()
             
             if pressed: 
+                # クリックされた
                 s_after.press()
+                
+                # シーン切り替えと造形終了時の処理
+
+
                 s_before.roulette_active = True
                 scene_stat = 0
         

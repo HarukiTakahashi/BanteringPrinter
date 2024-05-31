@@ -13,6 +13,7 @@ class BeforePrinting(Scene):
     margin = 60
     
     roulette_speed = 10
+    sleep_amout = 1
 
     def __init__(self, s):
         super().__init__(s)
@@ -21,7 +22,6 @@ class BeforePrinting(Scene):
          
         self.highlight_index = 0
         self.roulette_coutner = 0
-        
     
         # self.gcode_file = []
         # self.images = []
@@ -139,15 +139,12 @@ class BeforePrinting(Scene):
         self.drawTemperature()
         pygame.display.flip()
         
+    # ルーレット停止処理
     def stop(self):
         self.roulette_active = False
         self.draw()
 
-        time.sleep(5)
-
-
-
-        # print(self.items[self.highlight_index])
+        time.sleep(BeforePrinting.sleep_amout)
         
     def get_file(self):
-        return self.gcode_file[self.highlight_index]
+        return self.gcode_file[self.highlight_index], self.highlight_index

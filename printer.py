@@ -21,6 +21,7 @@ class Printer():
         self.gcode_file_name = None # 造形対象のGcodeファイル名
         self.gcode = [] # 造形対象のGcode
         self.gcode_printing = [] # 造形中のGcode
+        self.gcode_len = -1
         self.nozzle_temp = -1
         self.bed_temp = -1       
         
@@ -62,6 +63,7 @@ class Printer():
         self.is_printing = True
         
         self.gcode_printing = list(self.gcode)
+        self.gcode_len = len(self.gcode_printing)
 
         # リストを一度コピーしてそこから順番に取り出す処理に
         while len(self.gcode_printing) > 0:
@@ -280,4 +282,6 @@ class Printer():
         self.serial.close()
         print("serial closed")    
 
-    
+
+    def get_progress(self):
+        return len(self.gcode_printing), self.gcode_len

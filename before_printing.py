@@ -4,6 +4,7 @@ import random
 import time
 from printer import Printer
 from scene_base import Scene
+from nfc_read import NFCReading
 
 # 造形前のクラス
 class BeforePrinting(Scene):
@@ -137,6 +138,7 @@ class BeforePrinting(Scene):
 
         # 画面の更新        
         self.drawTemperature()
+        self.drawUserInfo()
         pygame.display.flip()
         
     # ルーレット停止処理
@@ -148,3 +150,6 @@ class BeforePrinting(Scene):
         
     def get_file(self):
         return self.gcode_file[self.highlight_index], self.highlight_index
+    
+    
+

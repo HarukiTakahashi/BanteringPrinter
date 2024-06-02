@@ -37,6 +37,7 @@ class AfterPrinting(Scene):
         self.screen.blit(text_surface, text_rect)
 
         self.drawTemperature()
+        self.drawUserInfo()
         pygame.display.flip()
 
     def press(self):

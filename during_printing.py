@@ -36,7 +36,7 @@ class DuringPrinting(Scene):
         bar_speed_size = (500, 50)
 
         # プログレスバーの設定
-        prg_x_pos = 50
+        prg_x_pos = 100
         bar_position = (prg_x_pos, height-200)
         bar_size = (width-(prg_x_pos*2), 50)        
 
@@ -96,6 +96,8 @@ class DuringPrinting(Scene):
 
         # 温度の表示
         self.drawTemperature()
+        self.drawUserInfo()
+
         pygame.display.flip()
 
     def is_printing(self):

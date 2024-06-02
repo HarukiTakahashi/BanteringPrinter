@@ -8,9 +8,11 @@ from printer import Printer
 from before_printing import BeforePrinting
 from during_printing import DuringPrinting
 from after_printing import AfterPrinting
+from nfc_read import NFCReading
 
 
 printer = None # Printerクラスのインスタンス
+nfc_read = None
 scenes = []
 gcode_folder_path = "./gcode" # Gcodeフォルダのパスを設定
 
@@ -33,7 +35,7 @@ def loadGcodeFiles():
 
 
 def main():
-    global printer
+    global printer, nfc
 
     scene_stat = 0 # シーンの状態管理
 
@@ -41,7 +43,7 @@ def main():
     pygame.init()
 
     # 画面設定
-    width, height = 1920, 1080
+    width, height = 1920, 1080 #1080
     screen = pygame.display.set_mode((width, height))
     #screen = pygame.display.set_mode((width, height),FULLSCREEN)
     
@@ -75,22 +77,32 @@ def main():
     printer.start_checking_temp()
     printer.start_controlling_speed()
 
+    # NFC_readクラスのインスタンス化
+    nfc_read = NFCReading()
+    nfc_read.start_reading()
     
+    icon = pygame.image.load("image/icons.png")
     # Scene 作成
     # 造形開始前のシーン
     s_before = BeforePrinting(screen)
     s_before.set_printer(printer)
+    s_before.set_nfc(nfc_read)
     s_before.set_gcode_file(gcode_file_list,img_list)
+    s_before.load_icons(icon)
     s_before.roulette_active = True
     
     s_during = DuringPrinting(screen)
     s_during.set_printer(printer)
+    s_during.set_nfc(nfc_read)
     s_during.set_gcode_file(gcode_file_list,img_list)
     s_during.set_image_button(pygame.image.load("image/button.png"))
+    s_during.load_icons(icon)
     
     s_after = AfterPrinting(screen)
     s_after.set_printer(printer)
+    s_after.set_nfc(nfc_read)
     s_after.set_gcode_file(gcode_file_list,img_list)
+    s_after.load_icons(icon)
 
     # プログラムのメイン関数
     while True:

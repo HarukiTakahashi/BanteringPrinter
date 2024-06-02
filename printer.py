@@ -113,11 +113,13 @@ class Printer():
                 data = self.serial.readline()
             except serial.SerialException as e:
                 # There is no new data from serial port
-                return None
+                #return None
+                pass
             except TypeError as e:
                 # Disconnect of USB->UART occured
                 # self.serial.port.close()
-                return None
+                #return None
+                pass
             
             if data != b'':
                 ret = data.decode('utf-8')
@@ -268,8 +270,8 @@ class Printer():
         self.thread_temp.start()
 
     def start_controlling_speed(self):
-        self.thread_temp = threading.Thread(target=self.control_speed)
-        self.thread_temp.start()
+        self.cont_speed = threading.Thread(target=self.control_speed)
+        self.cont_speed.start()
 
     def open_gcode_file(self, path):
         f = open(path, "r")

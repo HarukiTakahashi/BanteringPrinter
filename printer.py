@@ -231,14 +231,15 @@ class Printer():
     def check_temperature(self):
         while True:
             time.sleep(1)
+            if self.enable_check_temp:
 
-            g = "M105"
-            if self.is_printing:   
-                # 造形中ならリストに追加
-                self.gcode_printing.insert(1, g)
-            else:
-                # そうでないなら強制送信
-                self.serial_force_send(g)
+                g = "M105"
+                if self.is_printing:   
+                    # 造形中ならリストに追加
+                    self.gcode_printing.insert(1, g)
+                else:
+                    # そうでないなら強制送信
+                    self.serial_force_send(g)
 
     def control_speed(self):
         while True:

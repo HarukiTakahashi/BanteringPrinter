@@ -1,7 +1,7 @@
 import nfc
 import threading
 import time
-
+from typing import cast
 class NFCReading():
     
     def __init__(self):
@@ -17,10 +17,11 @@ class NFCReading():
                 servc = 0x1A8B
                 service_code = [nfc.tag.tt3.ServiceCode(servc >> 6, servc & 0x3F)]
                 bc_id = [nfc.tag.tt3.BlockCode(0)]
-                bd_id = tag.read_without_encryption(service_code,bc_id)
-                bd_id = bd_id.decode("utf-8")
+                bd_id = cast(bytearray, tag.read_without_encryption(service_code,bc_id))
                 
-                self.id_info = bd_id[2:-2]
+                self.id_info = bd_id.decode('utf-8')
+                self.id_info = self.id_info.replace('\x00', '')
+                self.id_info = self.id_info[2:-2]
 
             except:
                 print("Error")

@@ -43,7 +43,7 @@ def main():
     pygame.init()
 
     # 画面設定
-    width, height = 1920, 1080 #1080
+    width, height = 1920, 800 #1080
     screen = pygame.display.set_mode((width, height))
     #screen = pygame.display.set_mode((width, height),FULLSCREEN)
     
@@ -104,23 +104,34 @@ def main():
     s_after.set_gcode_file(gcode_file_list,img_list)
     s_after.load_icons(icon)
 
+    aft_img = [pygame.image.load("image/after_1.png"),
+               pygame.image.load("image/after_2.png"),
+               pygame.image.load("image/after_3.png")
+    ]
+    s_after.set_image(aft_img)
+
     # プログラムのメイン関数
     while True:
         pressed = False
+        clicked = False
 
         # マウス、キーボードなどの入力処理
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
             elif (event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN): # and not selected:
-                pressed = True
+                clicked = True
+            
+        mouse_buttons = pygame.mouse.get_pressed()
+        if mouse_buttons[0]:
+            pressed = True
 
         if scene_stat == 0:
             # 造形前の状態
 
             s_before.draw()
             
-            if pressed:
+            if clicked:
                 # クリックされた
                 s_before.stop()
 
@@ -144,23 +155,25 @@ def main():
                 print("done")
                 scene_stat = 2
 
-            if pressed: 
+            if clicked: 
                 s_during.press()
                 
         
         elif scene_stat == 2:
             # 造形後の状態
             s_after.draw()
-            
-            if pressed: 
-                # クリックされた
-                s_after.press()
-                
-                # シーン切り替えと造形終了時の処理
 
+            if s_after.is_confirmed():
 
                 s_before.roulette_active = True
+                s_after.holdtime = 0
                 scene_stat = 0
+            
+            if pressed: 
+                s_after.hold_button()
+            else:
+                s_after.release_button()
+
         
         pygame.time.Clock().tick(60)
         

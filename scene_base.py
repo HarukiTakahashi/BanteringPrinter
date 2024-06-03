@@ -97,10 +97,7 @@ class Scene():
            
         if self.nfc_res.id_info != "":
             # ここのスライス表現が正しいかどうかチェック
-            num = int(te[0:-5])
-            te = "" + te[0:-5]
-            
-
+            num = int(te)
             pygame.draw.rect(self.screen, (200,200,255), (0, 0, width, text_h))
             text_surface = font_u.render("" + str(te), True, (0, 0, 0))
             self.screen.blit(text_surface, (text_x_pos,text_h_margin))

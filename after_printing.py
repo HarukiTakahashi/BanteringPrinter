@@ -11,7 +11,7 @@ class AfterPrinting(Scene):
     item_height = 50
     item_margin = 10
 
-    HOLD_TIME_MAX = 180
+    HOLD_TIME_MAX = 60
 
     
     def __init__(self, s):
@@ -89,7 +89,6 @@ class AfterPrinting(Scene):
         self.holdtime = 0
     
     def is_confirmed(self):
-        print("ht"+str(self.holdtime))
         if self.holdtime > AfterPrinting.HOLD_TIME_MAX:
             return True
         else:

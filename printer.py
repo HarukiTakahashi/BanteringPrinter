@@ -245,19 +245,19 @@ class Printer():
         while True:
             time.sleep(1)
 
-            if self.feedrate > 50:
-                self.feedrate -= 1
+            if self.is_printing:
 
-            g = "M220 S" + str(self.feedrate)
-            if self.is_printing:   
-                # 造形中ならリストに追加
-                self.gcode_printing.insert(1, g)
-            else:
-                # そうでないなら強制送信
-                self.serial_force_send(g)
-        
+                if self.feedrate > 50:
+                    self.feedrate -= 1
 
-
+                g = "M220 S" + str(self.feedrate)
+                if self.is_printing:   
+                    # 造形中ならリストに追加
+                    self.gcode_printing.insert(1, g)
+                else:
+                    # そうでないなら強制送信
+                    self.serial_force_send(g)
+            
     def start_reading(self):
         self.thread_read = threading.Thread(target=self.serial_read)
         self.thread_read.start()

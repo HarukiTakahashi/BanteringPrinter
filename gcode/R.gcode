@@ -11,10 +11,8 @@
 ;TARGET_MACHINE.NAME:Creality Ender-2
 ;Generated with Cura_SteamEngine 5.5.0
 M140 S50
-M105
-M190 S50
 M104 S200
-M105
+M190 S50
 M109 S200
 M82 ;absolute extrusion mode
 M201 X500.00 Y500.00 Z100.00 E5000.00 ;Setup machine max acceleration

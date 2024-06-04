@@ -39,11 +39,13 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,0'
+
     # 初期化
     pygame.init()
 
     # 画面設定
-    width, height = 1920, 800 #1080
+    width, height = 1920, 1080 #1080
     screen = pygame.display.set_mode((width, height))
     #screen = pygame.display.set_mode((width, height),FULLSCREEN)
     
@@ -137,6 +139,7 @@ def main():
 
                 # シーン切り替えと造形開始前の処理
                 fname, ind = s_before.get_file()
+                s_before.printer.change_feedrate(50)
                 s_during.set_gcode_file_name(fname)
                 printer.open_gcode_file("gcode/" + fname)
                 printer.start_printing()

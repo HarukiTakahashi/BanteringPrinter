@@ -8,6 +8,7 @@ from printer import Printer
 from before_printing import BeforePrinting
 from during_printing import DuringPrinting
 from after_printing import AfterPrinting
+from printing_result import PrintingResult
 from nfc_read import NFCReading
 
 
@@ -39,7 +40,7 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,0'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1620,50'
 
     # 初期化
     pygame.init()
@@ -84,27 +85,30 @@ def main():
     nfc_read.start_reading()
     
     icon = pygame.image.load("image/icons.png")
+
     # Scene 作成
+    scenes = []
+
     # 造形開始前のシーン
     s_before = BeforePrinting(screen)
-    s_before.set_printer(printer)
-    s_before.set_nfc(nfc_read)
-    s_before.set_gcode_file(gcode_file_list,img_list)
-    s_before.load_icons(icon)
+    scenes.append(s_before)
     s_before.roulette_active = True
     
     s_during = DuringPrinting(screen)
-    s_during.set_printer(printer)
-    s_during.set_nfc(nfc_read)
-    s_during.set_gcode_file(gcode_file_list,img_list)
+    scenes.append(s_during)
     s_during.set_image_button(pygame.image.load("image/button.png"))
-    s_during.load_icons(icon)
     
     s_after = AfterPrinting(screen)
-    s_after.set_printer(printer)
-    s_after.set_nfc(nfc_read)
-    s_after.set_gcode_file(gcode_file_list,img_list)
-    s_after.load_icons(icon)
+    scenes.append(s_after)
+
+    s_result = PrintingResult(screen)
+    scenes.append(s_result)
+
+    for s in scenes:
+        s.set_printer(printer)
+        s.set_nfc(nfc_read)
+        s.set_gcode_file(gcode_file_list,img_list)
+        s.load_icons(icon)
 
     aft_img = [pygame.image.load("image/after_1.png"),
                pygame.image.load("image/after_2.png"),
@@ -151,7 +155,12 @@ def main():
                 
         elif scene_stat == 1:
             # 造形中の状態
+        
             s_during.draw()
+            if not printer.serial.is_open:
+                print("to scene 2")
+                time.sleep(1)
+                scene_stat = 2   
 
             # 造形完了
             if not printer.is_printing:
@@ -168,16 +177,22 @@ def main():
 
             if s_after.is_confirmed():
 
-                s_before.roulette_active = True
+                scene_stat = 3
                 s_after.holdtime = 0
-                scene_stat = 0
             
             if pressed: 
                 s_after.hold_button()
             else:
                 s_after.release_button()
 
-        
+        elif scene_stat == 3:
+            # 造形後の評価フェーズ
+            s_result.draw()
+
+            if pressed:
+                s_before.roulette_active = True
+                scene_stat = 0
+
         pygame.time.Clock().tick(60)
         
 

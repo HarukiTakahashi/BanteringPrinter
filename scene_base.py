@@ -47,11 +47,11 @@ class Scene():
         
         rect = pygame.Rect(100, height-200,200, height-100)
 
-        text = "Nozzle temperature : " + str(self.printer.nozzle_temp) + " deg C"
+        text = "Nozzle temperature : " + str(self.printer.nozzle_temp) + " degC"
         text_surface = font.render(text, True, (0, 0, 0))
         self.screen.blit(text_surface, (100,height-100))
 
-        text = "Bed temperature : " + str(self.printer.bed_temp) + " deg C"
+        text = "Bed temperature : " + str(self.printer.bed_temp) + " degC"
         text_surface = font.render(text, True, (0, 0, 0))
         self.screen.blit(text_surface, (100,height-50))
 

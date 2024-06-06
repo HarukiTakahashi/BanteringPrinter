@@ -145,7 +145,7 @@ class BeforePrinting(Scene):
     def stop(self):
         self.roulette_active = False
         self.draw()
-
+        self.roulette_coutner = 0
         time.sleep(BeforePrinting.sleep_amout)
         
     def get_file(self):

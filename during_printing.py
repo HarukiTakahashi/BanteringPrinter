@@ -14,7 +14,7 @@ class DuringPrinting(Scene):
         self.gcode_file_name = ""
 
         self.image_button = None
-        self.speed_up_amout = 20
+        self.speed_up_amout = 10
 
     def set_image_button(self, img):
         self.image_button = img
@@ -73,12 +73,14 @@ class DuringPrinting(Scene):
         pygame.draw.rect(self.screen, RED, (bar_speed_position[0], bar_speed_position[1], bar_speed_size[0] * (c / m), bar_speed_size[1]))
         pygame.draw.rect(self.screen, BLACK, (bar_speed_position[0], bar_speed_position[1], bar_speed_size[0], bar_speed_size[1]), 2)
 
+
         # プログレスバー
         c , m = self.printer.get_progress()
         font = pygame.font.Font(None, 64)
         t = "Progress : " + str(c) + " / " + str(m)
         text_surface = font.render(t , True, color)
         self.screen.blit(text_surface, (bar_position[0], bar_position[1] - 80))
+
 
         pygame.draw.rect(self.screen, WHITE, (bar_position[0], bar_position[1], bar_size[0], bar_size[1]))
         pygame.draw.rect(self.screen, GREEN, (bar_position[0], bar_position[1], bar_size[0] * (c / m), bar_size[1]))

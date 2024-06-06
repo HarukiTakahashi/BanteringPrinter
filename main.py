@@ -40,15 +40,15 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '1620,50'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1620,0'
 
     # 初期化
     pygame.init()
 
     # 画面設定
-    width, height = 1920, 1080 #1080
-    screen = pygame.display.set_mode((width, height))
-    #screen = pygame.display.set_mode((width, height),FULLSCREEN)
+    width, height = 1980, 1080 #1080
+    #screen = pygame.display.set_mode((width, height))
+    screen = pygame.display.set_mode((width, height),FULLSCREEN)
     
     pygame.display.set_caption('Title')
 
@@ -116,6 +116,11 @@ def main():
     ]
     s_after.set_image(aft_img)
 
+    res_img = [pygame.image.load("image/result_good.png"),
+               pygame.image.load("image/result_bad.png")
+    ]
+    s_result.set_image(res_img)
+
     # プログラムのメイン関数
     while True:
         pressed = False
@@ -140,7 +145,6 @@ def main():
             if clicked:
                 # クリックされた
                 s_before.stop()
-
                 # シーン切り替えと造形開始前の処理
                 fname, ind = s_before.get_file()
                 s_before.printer.change_feedrate(50)
@@ -156,7 +160,10 @@ def main():
         elif scene_stat == 1:
             # 造形中の状態
         
+            
             s_during.draw()
+            
+
             if not printer.serial.is_open:
                 print("to scene 2")
                 time.sleep(1)
@@ -178,6 +185,8 @@ def main():
             if s_after.is_confirmed():
 
                 scene_stat = 3
+                s_result.roulette_active = True
+                
                 s_after.holdtime = 0
             
             if pressed: 
@@ -188,8 +197,13 @@ def main():
         elif scene_stat == 3:
             # 造形後の評価フェーズ
             s_result.draw()
+            #print("hi")
+            #time.sleep(1)
 
-            if pressed:
+            if clicked:
+                # クリックされた
+                s_result.stop()
+
                 s_before.roulette_active = True
                 scene_stat = 0
 

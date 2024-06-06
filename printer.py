@@ -27,7 +27,7 @@ class Printer():
         
         self.is_printing = False
         self.is_waiting = False
-        self.enable_check_temp = False
+        self.enable_check_temp = True
         self.feedrate = 100
 
     # 造形プロセス制御 ================================
@@ -287,4 +287,8 @@ class Printer():
 
 
     def get_progress(self):
-        return len(self.gcode_printing), self.gcode_len
+        c = len(self.gcode_printing)
+        m = self.gcode_len
+        if c > m:
+            c = m
+        return c, m

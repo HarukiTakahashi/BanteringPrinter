@@ -1,9 +1,10 @@
 import os, sys
 from pathlib import Path
 import pygame
+import logging
 from pygame.locals import *
 import random
-import time
+import time, datetime
 from printer import Printer
 from before_printing import BeforePrinting
 from during_printing import DuringPrinting
@@ -13,9 +14,10 @@ from nfc_read import NFCReading
 
 
 printer = None # Printerクラスのインスタンス
-nfc_read = None
 scenes = []
+nfc_read = None
 gcode_folder_path = "./gcode" # Gcodeフォルダのパスを設定
+logger = None
 
 def loadGcodeFiles():
     global printer, gcode_folder_path
@@ -34,13 +36,38 @@ def loadGcodeFiles():
     return gcodes, png_files
 
 
+# ログを残すようにしてみる
+def setup_logger(log_file):
+    # ロガーの設定
+    logger = logging.getLogger(log_file)
+    logger.setLevel(logging.INFO)
+
+    # ファイルハンドラの設定
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+
+    # フォーマットの設定
+    formatter = logging.Formatter('%(asctime)s,%(message)s')
+    file_handler.setFormatter(formatter)
+
+    # ハンドラをロガーに追加
+    logger.addHandler(file_handler)
+
+    return logger
+
+# ロガーにメッセージを送る関数
+def log_message(logger, message=""):
+    # 現在の時刻を取得してログに追加
+    current_time = datetime.datetime.now().strftime('%Y/%m/%d, %H:%M:%S')
+    log_entry = f'{current_time},{nfc_read.id_str},{message}'
+    logger.info(log_entry)
 
 def main():
-    global printer, nfc
+    global printer, logger, nfc_read
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '1620,0'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1660,0'
 
     # 初期化
     pygame.init()
@@ -51,9 +78,6 @@ def main():
     screen = pygame.display.set_mode((width, height),FULLSCREEN)
     
     pygame.display.set_caption('Title')
-
-    # フォント設定
-    font = pygame.font.Font(None, 36)
 
     # フォルダ内のファイルパスを取得
     gcode_file_list, png_file_list = loadGcodeFiles()
@@ -121,6 +145,16 @@ def main():
     ]
     s_result.set_image(res_img)
 
+    
+    # ロガーの設定
+    log_file = 'log/system.log'
+    logger = setup_logger(log_file)
+    log_message(logger, message='System start')
+
+    # プリントタスクごとのロガー
+    task_file = ""
+    task_logger = None
+
     # プログラムのメイン関数
     while True:
         pressed = False
@@ -143,6 +177,12 @@ def main():
             s_before.draw()
             
             if clicked:
+                #log_message(logger, 'Gcode File Selected')
+
+                # プリントタスクごとのロガー
+                task_file = 'log/' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".log"
+                task_logger = setup_logger(task_file)
+
                 # クリックされた
                 s_before.stop()
                 # シーン切り替えと造形開始前の処理
@@ -156,7 +196,11 @@ def main():
                 s_during.setIndexOfFile(ind)
                 s_after.setIndexOfFile(ind)
                 scene_stat = 1
-                
+
+                # ログ
+                log_message(task_logger, 'Print start,' + fname)
+
+
         elif scene_stat == 1:
             # 造形中の状態
         
@@ -172,10 +216,13 @@ def main():
             # 造形完了
             if not printer.is_printing:
                 print("done")
+                log_message(task_logger, 'Finish printing')
                 scene_stat = 2
 
             if clicked: 
                 s_during.press()
+                # ログ
+                log_message(task_logger, 'Press button')
                 
         
         elif scene_stat == 2:
@@ -188,7 +235,11 @@ def main():
                 s_result.roulette_active = True
                 
                 s_after.holdtime = 0
-            
+
+                # ログ
+                log_message(task_logger, 'Object removed')
+
+
             if pressed: 
                 s_after.hold_button()
             else:
@@ -207,9 +258,12 @@ def main():
                 s_before.roulette_active = True
                 scene_stat = 0
 
+                # ログ
+                log_message(task_logger, 'Evaluate object')
+                del(task_logger)
+
         pygame.time.Clock().tick(60)
         
-
 
 if __name__ == "__main__":
     try:
@@ -218,5 +272,5 @@ if __name__ == "__main__":
     finally:
         pygame.quit()
         printer.close_serial()
-        print("hi")
+        log_message(logger, message='System end')
         os._exit(-1) 

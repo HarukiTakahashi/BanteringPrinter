@@ -109,13 +109,31 @@ class Scene():
                 self.screen.blit(self.icons[num%20], (40, 0))
 
         else:
-            te = "Anonymous"
+            te = "Anonymous user"
             
             pygame.draw.rect(self.screen, (200,200,200), (0, 0, width, text_h))
             text_surface = font_u.render("" + str(te), True, (0, 0, 0))
             self.screen.blit(text_surface, (text_x_pos,text_h_margin))
 
 
+    # 画面にグリッドを表示
+    # デバッグ用
+    def drawGrid(self, g = 50):
+        GRAY = (200,200,200)
+        grid_size = g
+        width = self.screen.get_width()
+        height = self.screen.get_height()
+    
+        # 縦のグリッド線を描画
+        for x in range(0, width, grid_size):
+            pygame.draw.line(self.screen, GRAY, (x, 0), (x, height))
+
+        # 横のグリッド線を描画
+        for y in range(0, height, grid_size):
+            pygame.draw.line(self.screen, GRAY, (0, y), (width, y))
+
+        # 画面を更新
+        pygame.display.flip()
 
     def setIndexOfFile(self, i):
         self.selected_index = i

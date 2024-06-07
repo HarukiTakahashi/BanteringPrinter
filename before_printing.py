@@ -139,6 +139,7 @@ class BeforePrinting(Scene):
         # 画面の更新        
         self.drawTemperature()
         self.drawUserInfo()
+        self.drawGrid()
         pygame.display.flip()
         
     # ルーレット停止処理

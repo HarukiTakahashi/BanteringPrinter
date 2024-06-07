@@ -6,6 +6,7 @@ class NFCReading():
     
     def __init__(self):
         self.id_info = ""
+        self.id_str = "Anonymous user"
 
     def on_connect(self, tag: nfc.tag.Tag) -> bool:
         if tag != None:
@@ -22,6 +23,7 @@ class NFCReading():
                 self.id_info = bd_id.decode('utf-8')
                 self.id_info = self.id_info.replace('\x00', '')
                 self.id_info = self.id_info[2:-2]
+                self.id_str = self.id_info 
 
             except:
                 print("Error")
@@ -33,6 +35,7 @@ class NFCReading():
     def on_release(self, tag: nfc.tag.Tag) -> None:
         print("released")
         self.id_info = ""
+        self.id_str = "Anonymous user"
 
     def start_reading(self):
         self.thread_nfc_read = threading.Thread(target=self.reading)

@@ -10,7 +10,7 @@ from nfc_read import NFCReading
 class BeforePrinting(Scene):
     # アイテムを縦に並べるための数値
     item_size = 250
-    item_num_line = 4
+    item_num_line = 5
     margin = 60
     
     roulette_speed = 10

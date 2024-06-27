@@ -19,6 +19,11 @@ nfc_read = None
 gcode_folder_path = "./gcode" # Gcodeフォルダのパスを設定
 logger = None
 
+# 0: JP
+# 1: EN
+LANGUAGE = 0
+FONT_STYLE = 'keifont.ttf'
+
 def loadGcodeFiles():
     global printer, gcode_folder_path
 
@@ -133,6 +138,8 @@ def main():
         s.set_nfc(nfc_read)
         s.set_gcode_file(gcode_file_list,img_list)
         s.load_icons(icon)
+        s.set_lang(LANGUAGE)
+        s.set_font(FONT_STYLE)
 
     aft_img = [pygame.image.load("image/after_1.png"),
                pygame.image.load("image/after_2.png"),
@@ -259,7 +266,7 @@ def main():
                 scene_stat = 0
 
                 # ログ
-                log_message(task_logger, 'Evaluate object')
+                log_message(task_logger, 'Evaluate object, ' + str(s_result.highlight_index))
                 del(task_logger)
 
         pygame.time.Clock().tick(60)

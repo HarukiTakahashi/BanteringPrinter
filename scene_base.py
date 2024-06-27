@@ -29,6 +29,14 @@ class Scene():
     def set_printer(self, p: Printer):
         self.printer = p
         
+    # 言語設定
+    def set_lang(self, i: int):
+        self.lang = i
+
+    def set_font(self, s: str):
+        self.font_style = s
+        
+        
     # NFCのインスタンスを設定
     def set_nfc(self, n: NFCReading):
         self.nfc_res = n
@@ -41,21 +49,37 @@ class Scene():
 
     # プリンタの温度について表示
     def drawTemperature(self):
-        font = pygame.font.Font(None, 36)
+        
+        #font = pygame.font.Font(None, 36)
+        font = pygame.font.Font(self.font_style, 36)
+        
         width = self.screen.get_width()
         height = self.screen.get_height()
         
         rect = pygame.Rect(100, height-200,200, height-100)
 
-        text = "Nozzle temperature : " + str(self.printer.nozzle_temp) + " degC"
+        if self.lang == 0:
+            text = "ノズル温度 : " + str(self.printer.nozzle_temp) + " ℃"
+        elif self.lang == 1:
+            text = "Nozzle temperature : " + str(self.printer.nozzle_temp) + " degC"
+            
         text_surface = font.render(text, True, (0, 0, 0))
         self.screen.blit(text_surface, (100,height-100))
 
-        text = "Bed temperature : " + str(self.printer.bed_temp) + " degC"
+        if self.lang == 0:
+            text = "ベッド温度 : " + str(self.printer.bed_temp) + " ℃"
+        elif self.lang == 1:
+            text = "Bed temperature : " + str(self.printer.bed_temp) + " degC"
+
         text_surface = font.render(text, True, (0, 0, 0))
         self.screen.blit(text_surface, (100,height-50))
 
-        text = "Speed : " + str(self.printer.feedrate) + "%"
+        if self.lang == 0:
+            text = "造形速度 : " + str(self.printer.feedrate) + "%"
+        elif self.lang == 1:
+            text = "Speed : " + str(self.printer.feedrate) + "%"
+
+        
         text_surface = font.render(text, True, (0, 0, 0))
         self.screen.blit(text_surface, (600,height-100))
 
@@ -93,6 +117,7 @@ class Scene():
         text_w = 100
         text_h = 100
         text_h_margin = 25
+        
         font_u = pygame.font.Font(None, text_h)     
            
         if self.nfc_res.id_info != "":

@@ -121,8 +121,7 @@ class DuringPrinting(Scene):
 
 
         # 温度の表示
-        self.drawTemperature()
-        self.drawUserInfo()
+        self.drawAll()
         self.drawGrid()
 
         pygame.display.flip()

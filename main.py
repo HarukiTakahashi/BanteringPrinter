@@ -72,13 +72,19 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '1550,50'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,0'
 
     # 初期化
     pygame.init()
-
+    pygame.mixer.init()
+    
+    # 効果音ファイルの読み込み（例：effect.wav）
+    sound_fx_pa = pygame.mixer.Sound('soundfx/pa.mp3')
+    sound_fx_kin = pygame.mixer.Sound('soundfx/kin.mp3')
+    
+    
     # 画面設定
-    width, height = 1980, 1080 #1080
+    width, height = 1920, 1080 #1080
     screen = pygame.display.set_mode((width, height))
     #screen = pygame.display.set_mode((width, height),FULLSCREEN)
     
@@ -114,6 +120,8 @@ def main():
     nfc_read.start_reading()
     
     icon = pygame.image.load("image/icons.png")
+    qr = pygame.image.load("image/questionnaire.png")
+    qr = pygame.transform.scale(qr, (100, 100))
 
     # Scene 作成
     scenes = []
@@ -140,6 +148,7 @@ def main():
         s.load_icons(icon)
         s.set_lang(LANGUAGE)
         s.set_font(FONT_STYLE)
+        s.set_QR_image(qr)
 
     aft_img = [pygame.image.load("image/after_1.png"),
                pygame.image.load("image/after_2.png"),
@@ -164,6 +173,16 @@ def main():
 
     # プログラムのメイン関数
     while True:
+        """
+        s_result.set_starter("IamStarter!!")
+        s_result.set_intervenor("Iaminterv1!!")
+        s_result.set_intervenor("Iaminterv2!!") 
+        s_result.set_finisher("IamFinisher!!")
+    
+        s_result.draw()    
+        continue
+        """
+    
         pressed = False
         clicked = False
 
@@ -191,7 +210,9 @@ def main():
                 task_logger = setup_logger(task_file)
 
                 # クリックされた
+                sound_fx_pa.play()
                 s_before.stop()
+
                 # シーン切り替えと造形開始前の処理
                 fname, ind = s_before.get_file()
                 s_before.printer.change_feedrate(50)
@@ -206,12 +227,12 @@ def main():
 
                 # ログ
                 log_message(task_logger, 'Print start,' + fname)
+                s_result.set_starter(nfc_read.id_str)
 
 
         elif scene_stat == 1:
             # 造形中の状態
         
-            
             s_during.draw()
             printer.is_printing = False
 
@@ -230,6 +251,7 @@ def main():
                 s_during.press()
                 # ログ
                 log_message(task_logger, 'Press button')
+                s_result.set_intervenor(nfc_read.id_str)
                 
         
         elif scene_stat == 2:
@@ -237,6 +259,7 @@ def main():
             s_after.draw()
 
             if s_after.is_confirmed():
+                sound_fx_kin.play()
 
                 scene_stat = 3
                 s_result.roulette_active = True
@@ -245,6 +268,7 @@ def main():
 
                 # ログ
                 log_message(task_logger, 'Object removed')
+                s_result.set_finisher(nfc_read.id_str)
 
 
             if pressed: 
@@ -260,6 +284,7 @@ def main():
 
             if clicked:
                 # クリックされた
+                sound_fx_pa.play()
                 s_result.stop()
 
                 s_before.roulette_active = True

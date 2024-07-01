@@ -9,6 +9,8 @@ from nfc_read import NFCReading
 # シーンの基底クラス
 class Scene():
     
+    DEBUG = False
+    
     def __init__(self, s):
         self.screen = s
         self.name = "base"
@@ -19,6 +21,8 @@ class Scene():
         self.gcode_file = []
         self.images = []
         self.icons = []
+        
+        self.qr = None
         
         self.nfc_res = None
     
@@ -47,6 +51,11 @@ class Scene():
         self.gcode_file = list(g)
         self.images = list(img)
 
+    def drawAll(self):
+        self.drawTemperature()
+        self.drawUserInfo()
+        self.drawQR()
+
     # プリンタの温度について表示
     def drawTemperature(self):
         
@@ -61,7 +70,7 @@ class Scene():
         if self.lang == 0:
             text = "ノズル温度 : " + str(self.printer.nozzle_temp) + " ℃"
         elif self.lang == 1:
-            text = "Nozzle temperature : " + str(self.printer.nozzle_temp) + " degC"
+            text = "Nozzle temp : " + str(self.printer.nozzle_temp) + " degC"
             
         text_surface = font.render(text, True, (0, 0, 0))
         self.screen.blit(text_surface, (100,height-100))
@@ -69,7 +78,7 @@ class Scene():
         if self.lang == 0:
             text = "ベッド温度 : " + str(self.printer.bed_temp) + " ℃"
         elif self.lang == 1:
-            text = "Bed temperature : " + str(self.printer.bed_temp) + " degC"
+            text = "Bed temp : " + str(self.printer.bed_temp) + " degC"
 
         text_surface = font.render(text, True, (0, 0, 0))
         self.screen.blit(text_surface, (100,height-50))
@@ -80,7 +89,7 @@ class Scene():
             text = "Speed : " + str(self.printer.feedrate) + "%"
 
         text_surface = font.render(text, True, (0, 0, 0))
-        self.screen.blit(text_surface, (800,height-100))
+        self.screen.blit(text_surface, (500,height-100))
 
 
     # アイコンの読み込み
@@ -135,9 +144,9 @@ class Scene():
 
         else:
             if self.lang == 0:
-                te = "匿名ユーザ"
+                te = "匿名ユーザ（学生証を置くと操作記録が残せます）"
             elif self.lang == 1:
-                te = "Anonymous user"
+                te = "Anonymous user (olace your ID card to to log your operation)"
             
             pygame.draw.rect(self.screen, (200,200,200), (0, 0, width, text_h))
             text_surface = font_u.render("" + str(te), True, (0, 0, 0))
@@ -147,6 +156,9 @@ class Scene():
     # 画面にグリッドを表示
     # デバッグ用
     def drawGrid(self, g = 50):
+        if not Scene.DEBUG:
+            return
+        
         GRAY = (200,200,200)
         grid_size = g
         width = self.screen.get_width()
@@ -168,6 +180,24 @@ class Scene():
                 
         # 画面を更新
         pygame.display.flip()
+        
+    def drawQR(self):
+        font = pygame.font.Font(self.font_style, 36)
+        width = self.screen.get_width()
+        height = self.screen.get_height()
+
+        if self.lang == 0:
+            text_surface = font.render("ご意見・ご要望・アンケートはこちら",True, (0, 0, 0))
+        elif self.lang == 1:
+            text_surface = font.render("Send us your comments.  ",True, (0, 0, 0))
+            
+        self.screen.blit(text_surface, (width-800,height-75))
+        self.screen.blit(self.qr,(width-200,height-120))
+        
+        pygame.display.flip()
 
     def setIndexOfFile(self, i):
         self.selected_index = i
+        
+    def set_QR_image(self, img):
+        self.qr = img

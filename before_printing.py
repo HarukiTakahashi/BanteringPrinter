@@ -13,8 +13,10 @@ class BeforePrinting(Scene):
     item_num_line = 5
     margin = 60
     
-    roulette_speed = 10
+    roulette_speed = 3
     sleep_amout = 3
+    
+    roulette_random = True
 
     def __init__(self, s):
         super().__init__(s)
@@ -36,9 +38,14 @@ class BeforePrinting(Scene):
 
         # ルーレット回転中
         if self.roulette_active:
+            
             self.roulette_coutner += 1
             if self.roulette_coutner % BeforePrinting.roulette_speed == 0:
-                self.highlight_index = (self.highlight_index + 1) % items_num
+        
+                if BeforePrinting.roulette_random:
+                    self.highlight_index = random_number = random.randint(0, items_num)
+                else:
+                    self.highlight_index = (self.highlight_index + 1) % items_num
 
 
         # 画面サイズ
@@ -137,9 +144,8 @@ class BeforePrinting(Scene):
 
 
         # 画面の更新        
-        self.drawTemperature()
-        self.drawUserInfo()
-        self.drawGrid()
+        self.drawAll()
+        #self.drawGrid()
         pygame.display.flip()
         
     # ルーレット停止処理

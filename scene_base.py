@@ -79,9 +79,8 @@ class Scene():
         elif self.lang == 1:
             text = "Speed : " + str(self.printer.feedrate) + "%"
 
-        
         text_surface = font.render(text, True, (0, 0, 0))
-        self.screen.blit(text_surface, (600,height-100))
+        self.screen.blit(text_surface, (800,height-100))
 
 
     # アイコンの読み込み
@@ -118,7 +117,8 @@ class Scene():
         text_h = 100
         text_h_margin = 25
         
-        font_u = pygame.font.Font(None, text_h)     
+        #font_u = pygame.font.Font(None, text_h)
+        font_u = pygame.font.Font(self.font_style, text_h-40)   
            
         if self.nfc_res.id_info != "":
             # ここのスライス表現が正しいかどうかチェック
@@ -134,7 +134,10 @@ class Scene():
                 self.screen.blit(self.icons[num%20], (40, 0))
 
         else:
-            te = "Anonymous user"
+            if self.lang == 0:
+                te = "匿名ユーザ"
+            elif self.lang == 1:
+                te = "Anonymous user"
             
             pygame.draw.rect(self.screen, (200,200,200), (0, 0, width, text_h))
             text_surface = font_u.render("" + str(te), True, (0, 0, 0))
@@ -151,12 +154,18 @@ class Scene():
     
         # 縦のグリッド線を描画
         for x in range(0, width, grid_size):
-            pygame.draw.line(self.screen, GRAY, (x, 0), (x, height))
+            if x % 200 == 0:
+                pygame.draw.line(self.screen, GRAY, (x, 0), (x, height),5)
+            else:
+                pygame.draw.line(self.screen, GRAY, (x, 0), (x, height))
 
         # 横のグリッド線を描画
         for y in range(0, height, grid_size):
-            pygame.draw.line(self.screen, GRAY, (0, y), (width, y))
-
+            if y % 200 == 0:
+                pygame.draw.line(self.screen, GRAY, (0, y), (width, y),5)
+            else:
+                pygame.draw.line(self.screen, GRAY, (0, y), (width, y))
+                
         # 画面を更新
         pygame.display.flip()
 

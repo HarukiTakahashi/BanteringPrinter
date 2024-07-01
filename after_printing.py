@@ -44,7 +44,7 @@ class AfterPrinting(Scene):
 
         # 画像の位置設定
         img_margin = 100
-        img_size = 500
+        img_size = 450
         offset_y = -50
         img_position = (width//2 - img_size // 2, 
                         height // 2- img_size // 2 + offset_y)
@@ -58,8 +58,18 @@ class AfterPrinting(Scene):
         self.screen.blit(self.images[2], 
                          (img_right_x, img_position[1])) 
         
-        font = pygame.font.Font(None, 64)
-        
+        # font = pygame.font.Font(None, 64)
+
+        """
+        ここ直す！
+        font = pygame.font.Font(self.font_style, 90)
+        if self.lang == 0:
+            text_surface = "造形完了！"
+        elif self.lang == 1:
+            text_surface = "Printing completed!"
+        self.screen.blit(text_surface, (200, 150))
+        """
+
         if self.printer.nozzle_temp > 50:
             text_surface = font.render("[ Nozzle : " + str(self.printer.nozzle_temp) + " degC ]", True, RED)
         else:
@@ -83,7 +93,7 @@ class AfterPrinting(Scene):
 
         # 真ん中のメッセージ
         font = pygame.font.Font(None, 36)
-        text_surface = font.render("Remove the printed result from the bed.", True, color)
+        text_surface = font.render("Remove the printed object from the bed.", True, color)
         self.screen.blit(text_surface, (img_position[0], img_position[1] + img_size+30))
 
         # 右のメッセージ
@@ -118,6 +128,7 @@ class AfterPrinting(Scene):
 
         self.drawTemperature()
         self.drawUserInfo()
+        self.drawGrid()
         pygame.display.flip()
 
 

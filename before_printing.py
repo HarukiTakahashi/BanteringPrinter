@@ -14,7 +14,7 @@ class BeforePrinting(Scene):
     margin = 60
     
     roulette_speed = 10
-    sleep_amout = 1
+    sleep_amout = 3
 
     def __init__(self, s):
         super().__init__(s)

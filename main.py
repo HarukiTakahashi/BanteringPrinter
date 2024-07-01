@@ -72,15 +72,15 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '1660,0'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1550,50'
 
     # 初期化
     pygame.init()
 
     # 画面設定
     width, height = 1980, 1080 #1080
-    #screen = pygame.display.set_mode((width, height))
-    screen = pygame.display.set_mode((width, height),FULLSCREEN)
+    screen = pygame.display.set_mode((width, height))
+    #screen = pygame.display.set_mode((width, height),FULLSCREEN)
     
     pygame.display.set_caption('Title')
 
@@ -213,7 +213,7 @@ def main():
         
             
             s_during.draw()
-            
+            printer.is_printing = False
 
             if not printer.serial.is_open:
                 print("to scene 2")

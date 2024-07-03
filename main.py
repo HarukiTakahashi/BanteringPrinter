@@ -81,7 +81,7 @@ def main():
     # 効果音ファイルの読み込み（例：effect.wav）
     sound_fx_pa = pygame.mixer.Sound('soundfx/pa.mp3')
     sound_fx_kin = pygame.mixer.Sound('soundfx/kin.mp3')
-    
+    sound_fx_kako = pygame.mixer.Sound('soundfx/kako.mp3')
     
     # 画面設定
     width, height = 1920, 1080 #1080
@@ -250,6 +250,7 @@ def main():
 
             if clicked: 
                 s_during.press()
+                sound_fx_kako.play()
                 # ログ
                 log_message(task_logger, 'Press button')
                 s_result.set_intervenor(nfc_read.id_str)

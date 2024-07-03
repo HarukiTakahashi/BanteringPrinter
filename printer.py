@@ -9,6 +9,21 @@ class Printer():
     DEFAULT_FEEDRATE = 100
     event = threading.Event()
 
+    START_GCODE = [
+        "G28",
+        "M104 S200",
+        "M140 S50",
+        "G1 Z10 F1000",
+        "G1 F2000 X180",
+        "G1 F2000 Y180",
+        "G1 F2000 X0",
+        "G1 F2000 Y0",
+        "G1 F2000 X180",
+        "G1 F2000 Y180",
+        "G1 F2000 X0",
+        "G1 F2000 Y0",
+    ]
+
     def __init__(self):
         self.serial = serial.Serial()
         self.command_buffer = 0    
@@ -62,7 +77,7 @@ class Printer():
     def printing(self):
         self.is_printing = True
         
-        self.gcode_printing = list(self.gcode)
+        self.gcode_printing = Printer.START_GCODE + list(self.gcode)
         self.gcode_len = len(self.gcode_printing)
 
         # リストを一度コピーしてそこから順番に取り出す処理に

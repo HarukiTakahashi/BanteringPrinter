@@ -23,7 +23,7 @@ class DuringPrinting(Scene):
 
         # 色の定義
         WHITE = (255, 255, 255)
-        GREEN = (0, 255, 0)
+        GREEN = (0, 128, 0)
         RED = (255, 0, 0)
         BLACK = (0, 0, 0)
         # 画面設定
@@ -47,10 +47,16 @@ class DuringPrinting(Scene):
         pygame.draw.rect(self.screen, bg_color, rect)
 
         font = pygame.font.Font(self.font_style, 80)
-        if self.lang == 0:
-            text_surface = font.render("3Dプリント中!", True, color)
-        elif self.lang == 1:
-            text_surface = font.render("Now Printing!", True, color)
+        if self.printer.is_waiting:
+            if self.lang == 0:
+                text_surface = font.render("温度上昇中!", True, RED)
+            elif self.lang == 1:
+                text_surface = font.render("Now Heating!", True, RED)
+        else:
+            if self.lang == 0:
+                text_surface = font.render("3Dプリント中!", True, color)
+            elif self.lang == 1:
+                text_surface = font.render("Now Printing!", True, color)
         self.screen.blit(text_surface, (750, 150))
 
         font = pygame.font.Font(self.font_style, 60)
@@ -97,8 +103,6 @@ class DuringPrinting(Scene):
         pygame.draw.rect(self.screen, WHITE, (bar_speed_position[0], bar_speed_position[1], bar_speed_size[0], bar_speed_size[1]))
         pygame.draw.rect(self.screen, RED, (bar_speed_position[0], bar_speed_position[1], bar_speed_size[0] * (c / m), bar_speed_size[1]))
         pygame.draw.rect(self.screen, BLACK, (bar_speed_position[0], bar_speed_position[1], bar_speed_size[0], bar_speed_size[1]), 2)
-
-
 
         # プログレスバー
         c , m = self.printer.get_progress()

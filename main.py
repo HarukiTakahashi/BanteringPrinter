@@ -234,8 +234,7 @@ def main():
             # 造形中の状態
         
             s_during.draw()
-            printer.is_printing = False
-
+            
             if not printer.serial.is_open:
                 print("to scene 2")
                 time.sleep(1)

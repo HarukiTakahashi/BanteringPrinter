@@ -72,7 +72,7 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,0'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,0'
 
     # 初期化
     pygame.init()
@@ -173,6 +173,8 @@ def main():
 
     # プログラムのメイン関数
     while True:
+
+
         """
         s_result.set_starter("IamStarter!!")
         s_result.set_intervenor("Iaminterv1!!")
@@ -234,7 +236,7 @@ def main():
             # 造形中の状態
         
             s_during.draw()
-            printer.is_printing = False
+            #printer.is_printing = False
 
             if not printer.serial.is_open:
                 print("to scene 2")
@@ -288,6 +290,7 @@ def main():
                 s_result.stop()
 
                 s_before.roulette_active = True
+                s_result.reset_intervenor()
                 scene_stat = 0
 
                 # ログ
@@ -304,5 +307,6 @@ if __name__ == "__main__":
     finally:
         pygame.quit()
         printer.close_serial()
+        nfc_read.close_nfc()
         log_message(logger, message='System end')
         os._exit(-1) 

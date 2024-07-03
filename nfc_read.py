@@ -1,12 +1,14 @@
 import nfc
 import threading
 import time
+from functools import partial
 from typing import cast
 class NFCReading():
     
     def __init__(self):
         self.id_info = ""
         self.id_str = "Anonymous user"
+        self.clf = None
 
     def on_connect(self, tag: nfc.tag.Tag) -> bool:
         if tag != None:
@@ -31,7 +33,6 @@ class NFCReading():
 
         return True  # Trueを返しておくとタグが存在しなくなるまで待機され、離すとon_releaseが発火する
 
-
     def on_release(self, tag: nfc.tag.Tag) -> None:
         print("released")
         self.id_info = ""
@@ -42,11 +43,14 @@ class NFCReading():
         self.thread_nfc_read.start()
 
     def reading(self):
-        clf = nfc.ContactlessFrontend("usb")
+        self.clf = nfc.ContactlessFrontend("usb")
         while True:
             time.sleep(0.1)
-            clf.connect(rdwr={"on-connect": self.on_connect, "on-release": self.on_release})
-
+            self.clf.connect(rdwr={"on-connect": self.on_connect, "on-release": self.on_release})
+            
     def get_nfc_id(self):
         self.id_info = self.id_info.replace("\n","")
         return str(self.id_info)
+    
+    def close_nfc(self):
+        pass

@@ -100,14 +100,17 @@ class PrintingResult(Scene):
 
         text_surface = font.render("Cheered by : ", True, BLACK)
         self.screen.blit(text_surface, (250, 750)) 
+        text_intervenor = ""
         for i,s in enumerate(self.intervenor):
-            text_surface = font.render(s + " ", True, BLACK)
-            self.screen.blit(text_surface, (300 + i*350, 800))        
+            text_intervenor = text_intervenor + " " + s
+
+        text_surface = font.render(text_intervenor, True, BLACK)
+        self.screen.blit(text_surface, (300, 800))        
 
         text_surface = font.render("Finished by : " + self.finisher, True, BLACK)
         self.screen.blit(text_surface, (250, 850))        
 
-        text_surface = font.render("... and You!", True, RED)
+        text_surface = font.render("... and You!", True, GREEN)
         self.screen.blit(text_surface, (300, 900))        
 
 
@@ -176,6 +179,9 @@ class PrintingResult(Scene):
     def set_intervenor(self, s: str):
         if not s in self.intervenor:
             self.intervenor.append(s)
-    
+
+    def reset_intervenor(self):
+        self.intervenor = []
+
     def set_finisher(self, s: str):
         self.finisher = s

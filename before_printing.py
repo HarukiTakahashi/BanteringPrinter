@@ -13,10 +13,10 @@ class BeforePrinting(Scene):
     item_num_line = 5
     margin = 60
     
-    roulette_speed = 3
+    roulette_speed = 20
     sleep_amout = 3
     
-    roulette_random = True
+    roulette_random = False
 
     def __init__(self, s):
         super().__init__(s)
@@ -43,7 +43,7 @@ class BeforePrinting(Scene):
             if self.roulette_coutner % BeforePrinting.roulette_speed == 0:
         
                 if BeforePrinting.roulette_random:
-                    self.highlight_index = random_number = random.randint(0, items_num)
+                    self.highlight_index = random_number = random.randint(0, items_num-1)
                 else:
                     self.highlight_index = (self.highlight_index + 1) % items_num
 

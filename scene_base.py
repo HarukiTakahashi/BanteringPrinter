@@ -191,7 +191,15 @@ class Scene():
         elif self.lang == 1:
             text_surface = font.render("Send us your comments.  ",True, (0, 0, 0))
             
-        self.screen.blit(text_surface, (width-800,height-75))
+        self.screen.blit(text_surface, (width-800,height-100))
+
+        if self.lang == 0:
+            text_surface = font.render("プレイフルインタラクション研究室（高橋）",True, (0, 0, 0))
+        elif self.lang == 1:
+            text_surface = font.render("Takahashi at Playful Lab. ",True, (0, 0, 0))
+            
+        self.screen.blit(text_surface, (width-800,height-50))
+
         self.screen.blit(self.qr,(width-200,height-120))
         
         pygame.display.flip()

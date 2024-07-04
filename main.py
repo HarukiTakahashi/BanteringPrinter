@@ -72,7 +72,7 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,0'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '100,50'
 
     # 初期化
     pygame.init()
@@ -307,6 +307,5 @@ if __name__ == "__main__":
     finally:
         pygame.quit()
         printer.close_serial()
-        nfc_read.close_nfc()
         log_message(logger, message='System end')
         os._exit(-1) 

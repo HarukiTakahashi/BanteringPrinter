@@ -13,8 +13,8 @@ class Printer():
         "G28",
         "M104 S200",
         "M140 S50",
-        """
         "G1 Z10 F1000",
+        """
         "G1 F2000 X180",
         "G1 F2000 Y180",
         "G1 F2000 X0",
@@ -100,6 +100,8 @@ class Printer():
         self.feedrate = Printer.DEFAULT_FEEDRATE
         self.change_feedrate(self.feedrate)
         self.is_printing = False
+        self.is_waiting = False
+        self.is_starting_up = False
     
     # feedrateの変更 ================================
     def change_feedrate(self, per):
@@ -225,8 +227,6 @@ class Printer():
                 if data.decode('utf-8').find("M109") != -1 or data.decode('utf-8').find("M190") != -1:
                     self.is_waiting = True
                     self.is_starting_up = False
-
-
                     
                 try:
                     self.serial.write(data)
@@ -258,7 +258,7 @@ class Printer():
         while True:
             time.sleep(1)
             if self.enable_check_temp:
-                if not self.is_waiting or not self.is_starting_up:
+                if self.is_waiting or self.is_starting_up:
                     continue
 
                 g = "M105"
@@ -274,7 +274,7 @@ class Printer():
             time.sleep(1)
 
             if self.is_printing:
-                if not self.is_waiting or not self.is_starting_up:
+                if self.is_waiting or self.is_starting_up:
                     continue
         
                 if self.feedrate > 50:

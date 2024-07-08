@@ -72,7 +72,7 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,50'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,0'
 
     # 初期化
     pygame.init()
@@ -128,7 +128,8 @@ def main():
     qr = pygame.image.load("image/questionnaire.png")
     qr = pygame.transform.scale(qr, (200, 200))
     warn = pygame.image.load("image/warning.png")
-
+    noz = pygame.image.load("image/nozzle.png")
+    bed = pygame.image.load("image/bed.png")
 
     # Scene 作成
     scenes = []
@@ -143,10 +144,12 @@ def main():
     s_during = DuringPrinting(screen)
     scenes.append(s_during)
     s_during.set_image_button(pygame.image.load("image/button.png"))
-    s_during.set_image_nozzle(pygame.image.load("image/nozzle.png"))
-    s_during.set_image_bed(pygame.image.load("image/bed.png"))
+    s_during.set_image_nozzle(noz)
+    s_during.set_image_bed(bed)
        
     s_after = AfterPrinting(screen)
+    s_after.set_image_nozzle(pygame.transform.scale(noz, (50, 50)))
+    s_after.set_image_bed(pygame.transform.scale( bed, (50, 50)))
     scenes.append(s_after)
 
     s_result = PrintingResult(screen)

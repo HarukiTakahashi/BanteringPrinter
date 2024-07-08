@@ -9,7 +9,7 @@ from nfc_read import NFCReading
 # シーンの基底クラス
 class Scene():
     
-    DEBUG = True
+    DEBUG = False
     
     def __init__(self, s):
         self.screen = s

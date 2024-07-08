@@ -89,7 +89,7 @@ class Scene():
             text = "Speed : " + str(self.printer.feedrate) + "%"
 
         text_surface = font.render(text, True, (0, 0, 0))
-        self.screen.blit(text_surface, (500,height-100))
+        self.screen.blit(text_surface, (600,height-100))
 
 
     # アイコンの読み込み
@@ -146,7 +146,7 @@ class Scene():
             if self.lang == 0:
                 te = "匿名ユーザ（学生証を置くと操作記録が残せます）"
             elif self.lang == 1:
-                te = "Anonymous user (olace your ID card to to log your operation)"
+                te = "Anonymous user (place your ID to log your operation)"
             
             pygame.draw.rect(self.screen, (200,200,200), (0, 0, width, text_h))
             text_surface = font_u.render("" + str(te), True, (0, 0, 0))
@@ -182,23 +182,23 @@ class Scene():
         pygame.display.flip()
         
     def drawQR(self):
-        font = pygame.font.Font(self.font_style, 36)
+        font = pygame.font.Font(self.font_style, 34)
         width = self.screen.get_width()
         height = self.screen.get_height()
 
         if self.lang == 0:
             text_surface = font.render("ご意見・ご要望・アンケートはこちら",True, (0, 0, 0))
         elif self.lang == 1:
-            text_surface = font.render("Send us your comments.  ",True, (0, 0, 0))
+            text_surface = font.render("     Send us your comments.",True, (0, 0, 0))
             
-        self.screen.blit(text_surface, (width-800,height-100))
+        self.screen.blit(text_surface, (width-900,height-100))
 
         if self.lang == 0:
             text_surface = font.render("プレイフルインタラクション研究室（高橋）",True, (0, 0, 0))
         elif self.lang == 1:
-            text_surface = font.render("Takahashi at Playful Lab. ",True, (0, 0, 0))
+            text_surface = font.render("     Takahashi at Playful Lab. ",True, (0, 0, 0))
             
-        self.screen.blit(text_surface, (width-800,height-50))
+        self.screen.blit(text_surface, (width-900,height-50))
 
         self.screen.blit(self.qr,(width-200,height-120))
         

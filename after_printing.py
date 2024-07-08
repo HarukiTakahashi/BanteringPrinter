@@ -45,7 +45,7 @@ class AfterPrinting(Scene):
         # 画像の位置設定
         img_margin = 100
         img_size = 450
-        offset_y = -100
+        offset_y = -70
         img_position = (width//2 - img_size // 2, 
                         height // 2- img_size // 2 + offset_y)
         img_left_x = img_position[0] - img_size - img_margin
@@ -62,10 +62,10 @@ class AfterPrinting(Scene):
 
         font = pygame.font.Font(self.font_style, 64)
         if self.lang == 0:
-            text_surface = font.render("造形完了！", True, RED)
+            text_surface = font.render("造形完了！出力物の取り外しにご協力ください！", True, RED)
         elif self.lang == 1:
-            text_surface = font.render("Printing completed!", True, RED)
-        self.screen.blit(text_surface, (200, img_position[1]-80))
+            text_surface = font.render("Completed! Help us remove the result!", True, RED)
+        self.screen.blit(text_surface, (200, img_position[1]-100))
         
         font = pygame.font.Font(self.font_style, 36)
         if self.lang == 0:

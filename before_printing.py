@@ -13,10 +13,10 @@ class BeforePrinting(Scene):
     item_num_line = 5
     margin = 60
     
-    roulette_speed = 20
+    roulette_speed = 3
     sleep_amout = 3
     
-    roulette_random = False
+    roulette_random = True
 
     def __init__(self, s):
         super().__init__(s)
@@ -26,11 +26,13 @@ class BeforePrinting(Scene):
         self.highlight_index = 0
         self.roulette_coutner = 0
     
-        # self.gcode_file = []
-        # self.images = []
+        self.image_button = None
 
+    def set_image_button(self, img):
+        self.image_button = img
 
     def draw(self):
+        BLACK = (0,0,0)
 
         # 描画する個数
         items_num = len(self.gcode_file)
@@ -97,6 +99,17 @@ class BeforePrinting(Scene):
             text_rect = text_surface.get_rect(center=(x + image_size // 2, y - 30))
             self.screen.blit(text_surface, text_rect)
 
+        # ボタンを押してルーレットを止めてね
+        font = pygame.font.Font(self.font_style, 24)
+        if self.lang == 0:
+            text_surface = font.render("ボタンを押してね", True, BLACK)
+            self.screen.blit(text_surface, (width-200, height-300))
+        elif self.lang == 1:
+            text_surface = font.render("Push button!", True, BLACK)
+            self.screen.blit(text_surface, (width-200, height-300))
+        self.image_button = pygame.transform.scale(self.image_button, (120, 120))
+        self.screen.blit(self.image_button, (width-150, height-250))
+
         # ルーレットストップ時
         if not self.roulette_active:
 
@@ -141,6 +154,7 @@ class BeforePrinting(Scene):
             # テキストを吹き出しの中に描画
             text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
             self.screen.blit(text_surface, text_position)
+
 
 
         # 画面の更新        

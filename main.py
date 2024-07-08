@@ -72,7 +72,7 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '100,50'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,50'
 
     # 初期化
     pygame.init()
@@ -130,6 +130,8 @@ def main():
     s_before = BeforePrinting(screen)
     scenes.append(s_before)
     s_before.roulette_active = True
+    s_before.set_image_button(pygame.image.load("image/button.png"))
+
     
     s_during = DuringPrinting(screen)
     scenes.append(s_during)

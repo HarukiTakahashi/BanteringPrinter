@@ -72,7 +72,7 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,50'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,50'
 
     # 初期化
     pygame.init()
@@ -83,6 +83,8 @@ def main():
     sound_fx_kin = pygame.mixer.Sound('soundfx/kin.mp3')
     sound_fx_kako = pygame.mixer.Sound('soundfx/kako.mp3')
     
+
+
     # 画面設定
     width, height = 1920, 1080 #1080
     screen = pygame.display.set_mode((width, height))
@@ -118,10 +120,15 @@ def main():
     # NFC_readクラスのインスタンス化
     nfc_read = NFCReading()
     nfc_read.start_reading()
+
+    nfc_read.set_fx_pikon(pygame.mixer.Sound('soundfx/pikon.mp3'))
+    nfc_read.set_fx_bubu(pygame.mixer.Sound('soundfx/bubu.mp3'))
     
     icon = pygame.image.load("image/icons.png")
     qr = pygame.image.load("image/questionnaire.png")
-    qr = pygame.transform.scale(qr, (100, 100))
+    qr = pygame.transform.scale(qr, (200, 200))
+    warn = pygame.image.load("image/warning.png")
+
 
     # Scene 作成
     scenes = []
@@ -136,7 +143,9 @@ def main():
     s_during = DuringPrinting(screen)
     scenes.append(s_during)
     s_during.set_image_button(pygame.image.load("image/button.png"))
-    
+    s_during.set_image_nozzle(pygame.image.load("image/nozzle.png"))
+    s_during.set_image_bed(pygame.image.load("image/bed.png"))
+       
     s_after = AfterPrinting(screen)
     scenes.append(s_after)
 
@@ -151,6 +160,7 @@ def main():
         s.set_lang(LANGUAGE)
         s.set_font(FONT_STYLE)
         s.set_QR_image(qr)
+        s.set_warning_image(warn)
 
     aft_img = [pygame.image.load("image/after_1.png"),
                pygame.image.load("image/after_2.png"),
@@ -163,7 +173,7 @@ def main():
     ]
     s_result.set_image(res_img)
 
-    
+
     # ロガーの設定
     log_file = 'log/system.log'
     logger = setup_logger(log_file)
@@ -175,17 +185,7 @@ def main():
 
     # プログラムのメイン関数
     while True:
-
-
-        """
-        s_result.set_starter("IamStarter!!")
-        s_result.set_intervenor("Iaminterv1!!")
-        s_result.set_intervenor("Iaminterv2!!") 
-        s_result.set_finisher("IamFinisher!!")
-    
-        s_result.draw()    
-        continue
-        """
+        pygame.time.Clock().tick(60)
     
         pressed = False
         clicked = False
@@ -238,11 +238,12 @@ def main():
             # 造形中の状態
         
             s_during.draw()
+            #time.sleep(10)
             
             if not printer.serial.is_open:
                 print("to scene 2")
                 time.sleep(1)
-                scene_stat = 2   
+                scene_stat = 2
 
             # 造形完了
             if not printer.is_printing:
@@ -254,7 +255,7 @@ def main():
                 s_during.press()
                 sound_fx_kako.play()
                 # ログ
-                log_message(task_logger, 'Press button')
+                log_message(task_logger, 'Press button,' + str(printer.feedrate))
                 s_result.set_intervenor(nfc_read.id_str)
                 
         
@@ -286,11 +287,12 @@ def main():
             #print("hi")
             #time.sleep(1)
 
-            if clicked:
+            if s_result.is_confirmed():
                 # クリックされた
                 sound_fx_pa.play()
                 s_result.stop()
 
+                s_result.holdtime = 0
                 s_before.roulette_active = True
                 s_result.reset_intervenor()
                 scene_stat = 0
@@ -299,7 +301,10 @@ def main():
                 log_message(task_logger, 'Evaluate object, ' + str(s_result.highlight_index))
                 del(task_logger)
 
-        pygame.time.Clock().tick(60)
+            if pressed: 
+                s_result.hold_button()
+            else:
+                s_result.release_button()
         
 
 if __name__ == "__main__":

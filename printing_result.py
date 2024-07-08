@@ -7,19 +7,19 @@ from scene_base import Scene
 
 # 造形前のクラス
 class PrintingResult(Scene):
-    # アイテムを縦に並べるための数値
-    item_height = 50
-    item_margin = 10
-    roulette_speed = 60
+    HOLD_TIME_MAX = 30
 
+    roulette_speed = 60
     sleep_amout = 3
     
     def __init__(self, s):
         super().__init__(s)
         self.name = "PrintingResult"
+        self.scene_num = 3
         self.roulette_active = True
         self.highlight_index = 0
         self.roulette_coutner = 0
+        self.holdtime = 0
         
         self.stater = ""
         self.intervenor = []
@@ -30,8 +30,9 @@ class PrintingResult(Scene):
         # 色の定義
         WHITE = (255, 255, 255)
         GRAY = (200, 200, 200)
-        GREEN = (0, 128, 0)
+        GREEN = (0, 180, 0)
         RED = (255, 0, 0)
+        RED_A = (255, 230, 230)
         BLUE = (200, 200, 255)
         BLACK = (0, 0, 0)
         PINK = (255,100,100)
@@ -58,7 +59,7 @@ class PrintingResult(Scene):
         font = pygame.font.Font(self.font_style, 82)
         
         if self.lang == 0:
-            text_surface = font.render("印刷したオブジェクトの出来はいかがですか?", True, color)
+            text_surface = font.render("プリントした印刷物の出来はいかがですか?", True, color)
         elif self.lang == 1:
             text_surface = font.render("How does the printed object look?", True, color)
         self.screen.blit(text_surface, (150, 150))
@@ -69,7 +70,7 @@ class PrintingResult(Scene):
 
         rect_left_x = width//2 - rect_w - rect_margin//2
         rect_right_x = width//2 + rect_margin//2
-        rect_y = 300
+        rect_y = 280
 
 
         pygame.draw.rect(self.screen, BLUE, (rect_left_x,rect_y,rect_w,rect_h),10)
@@ -77,8 +78,12 @@ class PrintingResult(Scene):
 
         border_thickness = 20  # 枠線の太さ
         if self.highlight_index == 0:
+            pygame.draw.rect(self.screen, RED_A, (rect_left_x,rect_y,
+                                                  rect_w * (self.holdtime/PrintingResult.HOLD_TIME_MAX),rect_h))
             pygame.draw.rect(self.screen, RED, (rect_left_x,rect_y,rect_w,rect_h), border_thickness)
         else:
+            pygame.draw.rect(self.screen, RED_A, (rect_right_x,rect_y,
+                                                  rect_w * (self.holdtime/PrintingResult.HOLD_TIME_MAX),rect_h))
             pygame.draw.rect(self.screen, RED, (rect_right_x,rect_y,rect_w,rect_h), border_thickness)
 
 
@@ -91,32 +96,46 @@ class PrintingResult(Scene):
         self.screen.blit(text_surface, (rect_right_x+50, rect_y+50))
         self.screen.blit(self.images[1], (rect_right_x+rect_w-300, rect_y))
 
+        cont_y = 620
+
         font = pygame.font.Font(self.font_style, 42)
         text_surface = font.render("Contributors!", True, RED)
-        self.screen.blit(text_surface, (200, 650))
+        self.screen.blit(text_surface, (200, cont_y))
 
-        text_surface = font.render("Started by : " + self.stater, True, BLACK)
-        self.screen.blit(text_surface, (250, 700))        
+        if self.lang == 0:
+            text_surface = font.render("プリントを始めた人 : " + self.stater, True, BLACK)
+        if self.lang == 1:
+            text_surface = font.render("Started by : " + self.stater, True, BLACK)
+        self.screen.blit(text_surface, (250, cont_y+50))        
 
-        text_surface = font.render("Cheered by : ", True, BLACK)
-        self.screen.blit(text_surface, (250, 750)) 
+        if self.lang == 0:
+            text_surface = font.render("応援した人 : ", True, BLACK)
+        if self.lang == 1:
+            text_surface = font.render("Cheered by : ", True, BLACK)
+        self.screen.blit(text_surface, (250, cont_y+100)) 
+        
         text_intervenor = ""
         for i,s in enumerate(self.intervenor):
-            text_intervenor = text_intervenor + " " + s
+            text_intervenor = text_intervenor + "" + s
+            if i < len(self.intervenor):
+                text_intervenor += ", "
 
         text_surface = font.render(text_intervenor, True, BLACK)
-        self.screen.blit(text_surface, (300, 800))        
+        self.screen.blit(text_surface, (300, cont_y+150))        
 
-        text_surface = font.render("Finished by : " + self.finisher, True, BLACK)
-        self.screen.blit(text_surface, (250, 850))        
+        if self.lang == 0:
+            text_surface = font.render("取り外した人 : " + self.finisher, True, BLACK)
+        if self.lang == 1:
+            text_surface = font.render("Finished by : " + self.finisher, True, BLACK)
+        self.screen.blit(text_surface, (250, cont_y+200))        
 
         text_surface = font.render("... and You!", True, GREEN)
-        self.screen.blit(text_surface, (300, 900))        
+        self.screen.blit(text_surface, (300, cont_y+280))        
 
 
         
         # ルーレットストップ
-        if not self.roulette_active:
+        if self.is_confirmed():
             BUBBLE_COLOR = (230, 230, 100)  # 吹き出しの色
 
              # 吹き出しのテキスト
@@ -185,3 +204,17 @@ class PrintingResult(Scene):
 
     def set_finisher(self, s: str):
         self.finisher = s
+
+    def hold_button(self):
+        self.holdtime+=1
+        self.roulette_active = False
+
+    def release_button(self):
+        self.holdtime = 0
+        self.roulette_active = True
+
+    def is_confirmed(self):
+        if self.holdtime >= PrintingResult.HOLD_TIME_MAX:
+            return True
+        else:
+            return False

@@ -11,16 +11,17 @@ class BeforePrinting(Scene):
     # アイテムを縦に並べるための数値
     item_size = 250
     item_num_line = 5
-    margin = 60
+    margin = 50
     
-    roulette_speed = 3
+    roulette_speed = 20
     sleep_amout = 3
     
-    roulette_random = True
+    roulette_random = False #True
 
     def __init__(self, s):
         super().__init__(s)
         self.name = "BeforePrinting"
+        self.scene_num = 0
         self.roulette_active = False
          
         self.highlight_index = 0
@@ -97,9 +98,10 @@ class BeforePrinting(Scene):
             file_name = os.path.splitext(self.gcode_file[index])[0]
             text_surface = font_64.render(file_name, True, (200, 0, 0))
             text_rect = text_surface.get_rect(center=(x + image_size // 2, y - 30))
-            self.screen.blit(text_surface, text_rect)
+            # self.screen.blit(text_surface, text_rect)
 
         # ボタンを押してルーレットを止めてね
+        """
         font = pygame.font.Font(self.font_style, 24)
         if self.lang == 0:
             text_surface = font.render("ボタンを押してね", True, BLACK)
@@ -109,6 +111,7 @@ class BeforePrinting(Scene):
             self.screen.blit(text_surface, (width-200, height-300))
         self.image_button = pygame.transform.scale(self.image_button, (120, 120))
         self.screen.blit(self.image_button, (width-150, height-250))
+        """
 
         # ルーレットストップ時
         if not self.roulette_active:
@@ -130,7 +133,7 @@ class BeforePrinting(Scene):
             row = self.highlight_index // images_per_row
             col = self.highlight_index % images_per_row
             x = start_x + col * (image_size + margin) - image_size // 2
-            y = start_y + row * (image_size + margin) - image_size / 2
+            y = start_y + row * (image_size + margin) - image_size / 2 - 20
 
             bubble_padding = 20
             bubble_rect = pygame.Rect((x,y), (text_rect.width + 2 * bubble_padding, text_rect.height + 2 * bubble_padding))
@@ -159,7 +162,7 @@ class BeforePrinting(Scene):
 
         # 画面の更新        
         self.drawAll()
-        #self.drawGrid()
+        self.drawGrid()
         pygame.display.flip()
         
     # ルーレット停止処理

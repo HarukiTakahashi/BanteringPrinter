@@ -5,7 +5,7 @@ import time, datetime
 import threading
 
 class Printer():
-    COMMAND_BUFFER_MAX = 5
+    COMMAND_BUFFER_MAX = 8
     DEFAULT_FEEDRATE = 100
     event = threading.Event()
 
@@ -13,6 +13,7 @@ class Printer():
         "G28",
         "M104 S200",
         "M140 S50",
+        """
         "G1 Z10 F1000",
         "G1 F2000 X180",
         "G1 F2000 Y180",
@@ -22,6 +23,7 @@ class Printer():
         "G1 F2000 Y180",
         "G1 F2000 X0",
         "G1 F2000 Y0",
+        """
     ]
 
     def __init__(self):
@@ -38,9 +40,12 @@ class Printer():
         self.gcode_printing = [] # 造形中のGcode
         self.gcode_len = -1
         self.nozzle_temp = -1
-        self.bed_temp = -1       
+        self.bed_temp = -1
+        self.nozzle_target_temp = -1
+        self.bed_target_temp = -1    
         
         self.is_printing = False
+        self.is_starting_up = False
         self.is_waiting = False
         self.enable_check_temp = True
         self.feedrate = 100
@@ -76,6 +81,7 @@ class Printer():
     # 造形プロセス制御 ================================
     def printing(self):
         self.is_printing = True
+        self.is_starting_up = True
         
         self.gcode_printing = Printer.START_GCODE + list(self.gcode)
         self.gcode_len = len(self.gcode_printing)
@@ -97,9 +103,11 @@ class Printer():
     
     # feedrateの変更 ================================
     def change_feedrate(self, per):
+        if self.is_starting_up:
+            return 
+        
         if self.is_waiting:
-            print("WAITING!!!")
-            return    
+            return
         
         print("===== change feedrate ===== ")
         g = "M220 S" + str(per)
@@ -216,6 +224,9 @@ class Printer():
                 
                 if data.decode('utf-8').find("M109") != -1 or data.decode('utf-8').find("M190") != -1:
                     self.is_waiting = True
+                    self.is_starting_up = False
+
+
                     
                 try:
                     self.serial.write(data)
@@ -247,6 +258,8 @@ class Printer():
         while True:
             time.sleep(1)
             if self.enable_check_temp:
+                if not self.is_waiting or not self.is_starting_up:
+                    continue
 
                 g = "M105"
                 if self.is_printing:   
@@ -261,7 +274,9 @@ class Printer():
             time.sleep(1)
 
             if self.is_printing:
-
+                if not self.is_waiting or not self.is_starting_up:
+                    continue
+        
                 if self.feedrate > 50:
                     self.feedrate -= 1
 

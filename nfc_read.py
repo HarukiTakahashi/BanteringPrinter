@@ -3,6 +3,8 @@ import threading
 import time
 from functools import partial
 from typing import cast
+import pygame
+from pygame.locals import *
 
 
 class NFCReading():
@@ -12,6 +14,12 @@ class NFCReading():
         self.id_info = ""
         self.id_str = "Anonymous user"
         self.clf = None
+
+    def set_fx_pikon(self, s):
+        self.pikon = s
+
+    def set_fx_bubu(self, s):
+        self.bubu = s
 
     def on_connect(self, tag: nfc.tag.Tag) -> bool:
         self.on_card = True
@@ -30,9 +38,11 @@ class NFCReading():
                 self.id_info = self.id_info.replace('\x00', '')
                 self.id_info = self.id_info[2:-2]
                 self.id_str = self.id_info 
+                self.pikon.play()
 
             except:
                 print("Error")
+                self.bubu.play()
                 pass
 
         return True  # Trueを返しておくとタグが存在しなくなるまで待機され、離すとon_releaseが発火する

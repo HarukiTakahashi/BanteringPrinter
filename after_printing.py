@@ -17,7 +17,7 @@ class AfterPrinting(Scene):
     def __init__(self, s):
         super().__init__(s)
         self.name = "AfterPrinting"
-
+        self.scene_num = 2
         self.holdtime = 0
         
         
@@ -61,12 +61,19 @@ class AfterPrinting(Scene):
         # font = pygame.font.Font(None, 64)
 
         font = pygame.font.Font(self.font_style, 64)
-        if self.lang == 0:
-            text_surface = font.render("造形完了！出力物の取り外しにご協力ください！", True, RED)
-        elif self.lang == 1:
-            text_surface = font.render("Completed! Help us remove the result!", True, RED)
-        self.screen.blit(text_surface, (200, img_position[1]-100))
-        
+        if self.printer.nozzle_temp > 50:
+            if self.lang == 0:
+                text_surface = font.render("プリント完了！冷却中…しばらくお待ちください", True, RED)
+            elif self.lang == 1:
+                text_surface = font.render("Completed! Cooling down, please wait a while!", True, RED)
+            self.screen.blit(text_surface, (200, img_position[1]-100))
+        else:
+            if self.lang == 0:
+                text_surface = font.render("プリント完了！印刷物の取り外しにご協力ください！", True, RED)
+            elif self.lang == 1:
+                text_surface = font.render("Completed! Help us remove the result!", True, RED)
+            self.screen.blit(text_surface, (200, img_position[1]-100))
+       
         font = pygame.font.Font(self.font_style, 36)
         if self.lang == 0:
             if self.printer.nozzle_temp > 50:
@@ -108,7 +115,7 @@ class AfterPrinting(Scene):
 
         # 真ん中のメッセージ
         if self.lang == 0:
-            text_surface = font.render("印刷したオブジェクトを取ってください。", True, color)
+            text_surface = font.render("プリントされた印刷物を取ってください。", True, color)
         elif self.lang == 1:
             text_surface = font.render("Remove the printed object from the bed.", True, color)
         self.screen.blit(text_surface, (img_position[0], img_position[1] + img_size+60))
@@ -140,16 +147,20 @@ class AfterPrinting(Scene):
 
 
         font = pygame.font.Font(self.font_style, 42)
-        text_surface = font.render("OK?", True, color)
-        self.screen.blit(text_surface, (width//2-40, bar_position[1]+10))
+        if self.lang == 0:
+            text_surface = font.render("作業完了！", True, color)
+        elif self.lang == 1:
+            text_surface = font.render("Did it!", True, color)
+    
+        self.screen.blit(text_surface, (width//2-90, bar_position[1]+10))
         font = pygame.font.Font(self.font_style, 28)
         
         if self.lang == 0:
-            text_surface = font.render("長押ししてください", True, color)
+            text_surface = font.render("ボタンを長押し (3秒間)", True, color)
         elif self.lang == 1:
-            text_surface = font.render("Hold the button!", True, color)
+            text_surface = font.render("Hold the button! (3 sec)", True, color)
         
-        self.screen.blit(text_surface, (width//2-120, bar_position[1]+60))
+        self.screen.blit(text_surface, (width//2-160, bar_position[1]+60))
 
 
         self.drawAll()
@@ -171,7 +182,7 @@ class AfterPrinting(Scene):
         self.holdtime = 0
     
     def is_confirmed(self):
-        if self.holdtime > AfterPrinting.HOLD_TIME_MAX:
+        if self.holdtime >= AfterPrinting.HOLD_TIME_MAX:
             return True
         else:
             return False

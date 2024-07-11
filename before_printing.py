@@ -13,10 +13,10 @@ class BeforePrinting(Scene):
     item_num_line = 5
     margin = 50
     
-    roulette_speed = 20
+    roulette_speed = 10
     sleep_amout = 3
     
-    roulette_random = False #True
+    roulette_random = True
 
     def __init__(self, s):
         super().__init__(s)
@@ -37,6 +37,7 @@ class BeforePrinting(Scene):
 
         # 描画する個数
         items_num = len(self.gcode_file)
+        #print("!!!!!!!!!!!!!!!!!! "+str(self.roulette_coutner))
 
 
         # ルーレット回転中

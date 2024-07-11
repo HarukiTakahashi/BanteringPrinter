@@ -18,6 +18,7 @@ scenes = []
 nfc_read = None
 gcode_folder_path = "./gcode" # Gcodeフォルダのパスを設定
 logger = None
+FPS = 120
 
 # 0: JP
 # 1: EN
@@ -72,7 +73,7 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,0'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,0'
 
     # 初期化
     pygame.init()
@@ -164,6 +165,7 @@ def main():
         s.set_font(FONT_STYLE)
         s.set_QR_image(qr)
         s.set_warning_image(warn)
+        s.set_FPS(FPS)
 
     aft_img = [pygame.image.load("image/after_1.png"),
                pygame.image.load("image/after_2.png"),
@@ -186,9 +188,10 @@ def main():
     task_file = ""
     task_logger = None
 
+    pygame.time.Clock().tick(FPS)
+
     # プログラムのメイン関数
     while True:
-        pygame.time.Clock().tick(60)
     
         pressed = False
         clicked = False

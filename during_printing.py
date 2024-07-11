@@ -32,6 +32,7 @@ class DuringPrinting(Scene):
         GREEN = (0, 255, 0)
         RED = (255, 0, 0)
         BLACK = (0, 0, 0)
+        ORANGE = (241,90,34)
         # 画面設定
         width = self.screen.get_width()
         height = self.screen.get_height()
@@ -100,7 +101,15 @@ class DuringPrinting(Scene):
             pygame.draw.rect(self.screen, RED, (bar_bed_pos[0], bar_bed_pos[1], bar_size[0] * (bed_temp / bed_max), bar_size[1]))
             pygame.draw.rect(self.screen, BLACK, (bar_bed_pos[0], bar_bed_pos[1], bar_size[0], bar_size[1]), 2)
 
+
+
+            # 温度の矢印
+            font = pygame.font.Font(self.font_style, 24)
             nx = bar_noz_pos[0] + bar_size[0] * (noz_target / noz_max)
+
+            text_surface = font.render(str(noz_target)+"℃", True, color)
+            text_rect = text_surface.get_rect()
+            self.screen.blit(text_surface, (nx-text_rect.centerx,bar_noz_pos[1]-50))
 
             pygame.draw.polygon(self.screen, BLACK, [
                 (nx-20,bar_noz_pos[1]-20),
@@ -109,6 +118,11 @@ class DuringPrinting(Scene):
                 ], 0)
             
             nx = bar_bed_pos[0] + bar_size[0] * (bed_target / bed_max)
+
+            text_surface = font.render(str(bed_target)+"℃", True, color)
+            text_rect = text_surface.get_rect()
+            self.screen.blit(text_surface, (nx-text_rect.centerx,bar_bed_pos[1]-50))
+
             pygame.draw.polygon(self.screen, BLACK, [
                 (nx-20,bar_bed_pos[1]-20),
                 (nx,bar_bed_pos[1]),
@@ -149,11 +163,39 @@ class DuringPrinting(Scene):
 
             font = pygame.font.Font(self.font_style, 50)
             if self.lang == 0:
-                t = "プリント速度 : " + str(c) + " / " + str(m) + " %"
+                t = "プリント速度 : "
             elif self.lang == 1:
-                t = "Printing Speed : " + str(c) + " / " + str(m) + " %"
+                t = "Printing Speed : "
             text_surface = font.render(t , True, color)
-            self.screen.blit(text_surface, (bar_speed_position[0], bar_speed_position[1] - 50))
+            text_rect_1 = text_surface.get_rect()
+            self.screen.blit(text_surface, (bar_speed_position[0], bar_speed_position[1] - text_rect_1.height))
+
+            font = pygame.font.Font(self.font_style, 50)
+            t = "" + str(c)
+            if c >= 100 and c < 200:
+                 font = pygame.font.Font(self.font_style, 70)
+                 text_surface = font.render(t , True, color)
+            elif c >= 200  and c < 300:
+                 font = pygame.font.Font(self.font_style, 80)
+                 text_surface = font.render(t , True, ORANGE)
+            elif c >= 300 and c < 400:
+                 font = pygame.font.Font(self.font_style, 90)
+                 text_surface = font.render(t , True, ORANGE)
+            elif c >= 400:
+                 font = pygame.font.Font(self.font_style, 100)
+                 text_surface = font.render(t , True, RED)
+            else:
+                 text_surface = font.render(t , True, color)               
+            
+            text_rect_2 = text_surface.get_rect()
+            self.screen.blit(text_surface, (bar_speed_position[0] + text_rect_1.width, 
+                                            bar_speed_position[1] - text_rect_2.height))
+
+            font = pygame.font.Font(self.font_style, 50)
+            t = " / " + str(m) + " %"
+            text_surface = font.render(t , True, color)
+            self.screen.blit(text_surface, (bar_speed_position[0] + text_rect_1.width + text_rect_2.width,
+                                             bar_speed_position[1] - text_rect_1.height))
 
             pygame.draw.rect(self.screen, WHITE, (bar_speed_position[0], bar_speed_position[1], bar_speed_size[0], bar_speed_size[1]))
             pygame.draw.rect(self.screen, RED, (bar_speed_position[0], bar_speed_position[1], bar_speed_size[0] * (c / m), bar_speed_size[1]))

@@ -30,7 +30,7 @@ class PrintingResult(Scene):
         # 色の定義
         WHITE = (255, 255, 255)
         GRAY = (200, 200, 200)
-        GREEN = (0, 180, 0)
+        GREEN = (0, 160, 0)
         RED = (255, 0, 0)
         RED_A = (255, 230, 230)
         BLUE = (200, 200, 255)
@@ -117,7 +117,7 @@ class PrintingResult(Scene):
         text_intervenor = ""
         for i,s in enumerate(self.intervenor):
             text_intervenor = text_intervenor + "" + s
-            if i < len(self.intervenor):
+            if i < len(self.intervenor)-1:
                 text_intervenor += ", "
 
         text_surface = font.render(text_intervenor, True, BLACK)

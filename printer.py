@@ -7,23 +7,21 @@ import threading
 class Printer():
     COMMAND_BUFFER_MAX = 8
     DEFAULT_FEEDRATE = 100
-    event = threading.Event()
+    #event = threading.Event()
 
     START_GCODE = [
         "G28",
         "M104 S200",
         "M140 S50",
         "G1 Z10 F1000",
-        """
-        "G1 F2000 X180",
-        "G1 F2000 Y180",
-        "G1 F2000 X0",
-        "G1 F2000 Y0",
-        "G1 F2000 X180",
-        "G1 F2000 Y180",
-        "G1 F2000 X0",
-        "G1 F2000 Y0",
-        """
+        "G1 F3000 X180",
+        "G1 F3000 Y180",
+        "G1 F3000 X0",
+        "G1 F3000 Y0",
+        "G1 F3000 X180",
+        "G1 F3000 Y180",
+        "G1 F3000 X0",
+        "G1 F3000 Y0",
     ]
 
     def __init__(self):
@@ -309,8 +307,9 @@ class Printer():
         self.gcode = f.readlines()
         
     def close_serial(self):
-        g = "M84"
-        self.serial_force_send(g)
+        self.serial_force_send("M84")
+        self.serial_force_send("M104 S0")
+        self.serial_force_send("M140 S0")
 
         self.serial.close()
         print("serial closed")    

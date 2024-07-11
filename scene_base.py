@@ -18,6 +18,7 @@ class Scene():
         self.active = False
         self.printer = None
         self.holdtime=-1
+        self.FPS = 60
 
         self.selected_index = -1
         self.gcode_file = []
@@ -31,6 +32,9 @@ class Scene():
     
     def draw(self):
         pass
+
+    def set_FPS(self, f):
+        self.FPS = f
         
     # プリンタのインスタンスを設定
     def set_printer(self, p: Printer):
@@ -267,11 +271,18 @@ class Scene():
         height = self.screen.get_height()
 
         if self.lang == 0:
-            text_surface = font.render("プリント中の3Dプリンタに手を触れないでください！",True, (0, 0, 0))
+            text_surface = font.render("プリント中の3Dプリンタに",True, (0, 0, 0))
         elif self.lang == 1:
-            text_surface = font.render("Don't touch a 3D printer while printing!",True, (0, 0, 0))
+            text_surface = font.render("Don't touch a 3D printer",True, (0, 0, 0))
              
-        self.screen.blit(text_surface, (140,height-75))
+        self.screen.blit(text_surface, (140,height-100))
+
+        if self.lang == 0:
+            text_surface = font.render("手を触れないでください！",True, (0, 0, 0))
+        elif self.lang == 1:
+            text_surface = font.render("while printing!",True, (0, 0, 0))
+             
+        self.screen.blit(text_surface, (140,height-50))
         self.screen.blit(self.warn,(20,height-110))
 
     def setIndexOfFile(self, i):

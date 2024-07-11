@@ -73,7 +73,7 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,0'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,-100'
 
     # 初期化
     pygame.init()
@@ -166,6 +166,7 @@ def main():
         s.set_QR_image(qr)
         s.set_warning_image(warn)
         s.set_FPS(FPS)
+    nfc_read.set_lang(LANGUAGE)
 
     aft_img = [pygame.image.load("image/after_1.png"),
                pygame.image.load("image/after_2.png"),
@@ -239,9 +240,9 @@ def main():
                 log_message(task_logger, 'Print start,' + fname)
                 s_result.set_starter(nfc_read.id_str)
 
-
+        # 造形中の状態======================================================================
         elif scene_stat == 1:
-            # 造形中の状態
+            
         
             s_during.draw()
             #time.sleep(10)
@@ -263,7 +264,6 @@ def main():
                 # ログ
                 log_message(task_logger, 'Press button,' + str(printer.feedrate))
                 s_result.set_intervenor(nfc_read.id_str)
-                
         
         elif scene_stat == 2:
             # 造形後の状態
@@ -271,6 +271,7 @@ def main():
 
             if s_after.is_confirmed():
                 sound_fx_kin.play()
+                s_after.stop()
 
                 scene_stat = 3
                 s_result.roulette_active = True

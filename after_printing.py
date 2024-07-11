@@ -13,7 +13,12 @@ class AfterPrinting(Scene):
 
     HOLD_TIME_MAX = 60
 
+    # 温度設定
+    safe_nozzle_temp = 50
+    safe_bed_temp = 45
     
+    sleep_amout = 3
+
     def __init__(self, s):
         super().__init__(s)
         self.name = "AfterPrinting"
@@ -38,9 +43,7 @@ class AfterPrinting(Scene):
         PINK = (255,100,100)
         
 
-        # 温度設定
-        safe_nozzle_temp = 50
-        safe_bed_temp = 45
+
 
         # 画面設定
         width = self.screen.get_width()
@@ -72,27 +75,27 @@ class AfterPrinting(Scene):
         # font = pygame.font.Font(None, 64)
 
         font = pygame.font.Font(self.font_style, 64)
-        if self.printer.bed_temp > safe_bed_temp:
+        if self.printer.bed_temp > AfterPrinting.safe_bed_temp:
             if self.lang == 0:
-                text_surface = font.render("プリント完了！冷却中…しばらくお待ちください", True, RED)
+                text_surface = font.render("プリント完了！冷却中です…しばらくお待ちください", True, RED)
             elif self.lang == 1:
                 text_surface = font.render("Completed! Cooling down, please wait a while!", True, RED)
             self.screen.blit(text_surface, (200, img_position[1]-100))
         else:
             if self.lang == 0:
-                text_surface = font.render("プリント完了！印刷物の取り外しにご協力ください！", True, BLUE)
+                text_surface = font.render("冷却完了！印刷物の取り外しにご協力ください！", True, BLUE)
             elif self.lang == 1:
                 text_surface = font.render("Completed! Help us remove the result!", True, BLUE)
             self.screen.blit(text_surface, (200, img_position[1]-100))
        
         font = pygame.font.Font(self.font_style, 36)
         if self.lang == 0:
-            if self.printer.nozzle_temp > safe_nozzle_temp:
+            if self.printer.nozzle_temp > AfterPrinting.safe_nozzle_temp:
                 text_surface = font.render("" + str(self.printer.nozzle_temp) + " ℃", True, RED)
             else:
                 text_surface = font.render("" + str(self.printer.nozzle_temp) + " ℃", True, BLUE)    
         elif self.lang == 1:
-            if self.printer.nozzle_temp > safe_bed_temp:
+            if self.printer.nozzle_temp > AfterPrinting.safe_nozzle_temp:
                 text_surface = font.render("" + str(self.printer.nozzle_temp) + " degC", True, RED)
             else:
                 text_surface = font.render("" + str(self.printer.nozzle_temp) + " degC", True, BLUE)
@@ -101,12 +104,12 @@ class AfterPrinting(Scene):
         self.screen.blit(text_surface, (img_left_x+250, 400))
 
         if self.lang == 0:
-            if self.printer.bed_temp > safe_nozzle_temp:
+            if self.printer.bed_temp > AfterPrinting.safe_bed_temp:
                 text_surface = font.render("" + str(self.printer.bed_temp) + " ℃", True, RED)
             else:
                 text_surface = font.render("" + str(self.printer.bed_temp) + " ℃", True, BLUE)    
         elif self.lang == 1:
-            if self.printer.bed_temp > safe_bed_temp:
+            if self.printer.bed_temp > AfterPrinting.safe_bed_temp:
                 text_surface = font.render("" + str(self.printer.bed_temp) + " degC", True, RED)
             else:
                 text_surface = font.render("" + str(self.printer.bed_temp) + " degC", True, BLUE)    
@@ -136,9 +139,9 @@ class AfterPrinting(Scene):
         self.screen.blit(text_surface, (img_position[0], img_position[1] + img_size+60))
 
         if self.lang == 0:
-            text_surface = font.render("印刷物は差し上げます。", True, color)
+            text_surface = font.render("印刷物は差し上げます。", True, RED)
         elif self.lang == 1:
-            text_surface = font.render("You can take it.", True, color)
+            text_surface = font.render("You can take it.", True, RED)
         self.screen.blit(text_surface, (img_position[0], img_position[1] + img_size+100))
 
         # 右のメッセージ
@@ -166,22 +169,65 @@ class AfterPrinting(Scene):
                          (bar_position[0], bar_position[1], bar_size[0], bar_size[1]), 2)
 
 
+        if self.is_cooled():
 
-        font = pygame.font.Font(self.font_style, 42)
-        if self.lang == 0:
-            text_surface = font.render("作業完了！", True, color)
-        elif self.lang == 1:
-            text_surface = font.render("Did it!", True, color)
-    
-        self.screen.blit(text_surface, (width//2-90, bar_position[1]+10))
-        font = pygame.font.Font(self.font_style, 28)
+            font = pygame.font.Font(self.font_style, 42)
+            if self.lang == 0:
+                text_surface = font.render("作業完了！", True, color)
+            elif self.lang == 1:
+                text_surface = font.render("Did it!", True, color)
         
-        if self.lang == 0:
-            text_surface = font.render("ボタンを長押し (3秒間)", True, color)
-        elif self.lang == 1:
-            text_surface = font.render("Hold the button! (3 sec)", True, color)
+            self.screen.blit(text_surface, (width//2-90, bar_position[1]+10))
+
+
+            font = pygame.font.Font(self.font_style, 28)
+            if self.lang == 0:
+                text_surface = font.render("ボタンを長押し (3秒間)", True, color)
+            elif self.lang == 1:
+                text_surface = font.render("Hold the button! (3 sec)", True, color)
+            
+            self.screen.blit(text_surface, (width//2-170, bar_position[1]+60))
+
+        else:
+            font = pygame.font.Font(self.font_style, 42)
+            if self.lang == 0:
+                text_surface = font.render("冷却中！", True, color)
+            elif self.lang == 1:
+                text_surface = font.render("Cooling!", True, color)
         
-        self.screen.blit(text_surface, (width//2-170, bar_position[1]+60))
+            self.screen.blit(text_surface, (width//2-90, bar_position[1]+10))
+
+
+        # 作業完了
+        if self.is_confirmed():
+            BUBBLE_COLOR = (230, 230, 100)  # 吹き出しの色
+
+             # 吹き出しのテキスト
+            text = " Thank you! "
+            font = pygame.font.Font(None, 120)
+            text_surface = font.render(text, True, BLACK)
+            text_rect = text_surface.get_rect()
+
+            bubble_padding = 20
+            bubble_rect = pygame.Rect((bar_position[0],bar_position[1] - 150), 
+                                      (text_rect.width + 2 * bubble_padding, text_rect.height + 2 * bubble_padding))
+        
+            # 吹き出しの本体部分
+            pygame.draw.rect(self.screen, BUBBLE_COLOR, bubble_rect)
+            #pygame.draw.rect(self.screen, BUBBLE_COLOR, bubble_rect,thickness)
+
+            # 吹き出しの三角形の部分
+            triangle_points = [
+                (bubble_rect.centerx, bubble_rect.bottom+50),  # 三角形の先端
+                (bubble_rect.centerx - 30, bubble_rect.bottom),  # 左の点
+                (bubble_rect.centerx + 30, bubble_rect.bottom)  # 右の点
+            ]
+            pygame.draw.polygon(self.screen, BUBBLE_COLOR, triangle_points)
+            #pygame.draw.polygon(self.screen, BUBBLE_COLOR, triangle_points,thickness)
+            
+            # テキストを吹き出しの中に描画
+            text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
+            self.screen.blit(text_surface, text_position)
 
 
         self.drawAll()
@@ -196,8 +242,14 @@ class AfterPrinting(Scene):
     def press(self):
         pass
 
+    def stop(self):
+        self.draw()
+
+        time.sleep(AfterPrinting.sleep_amout)
+
     def hold_button(self):
-        self.holdtime+=1
+        if self.is_cooled():
+            self.holdtime+=1
 
     def release_button(self):
         self.holdtime = 0
@@ -207,3 +259,9 @@ class AfterPrinting(Scene):
             return True
         else:
             return False
+
+    def is_cooled(self):
+        if self.printer.bed_temp > AfterPrinting.safe_bed_temp:
+            return False
+        else:
+            return True

@@ -257,8 +257,9 @@ class Scene():
             
         self.screen.blit(text_surface, (width-900,height-100))
 
+        font = pygame.font.Font(self.font_style, 28)
         if self.lang == 0:
-            text_surface = font.render("プレイフルインタラクション研究室（高橋）",True, (0, 0, 0))
+            text_surface = font.render("プレイフルインタラクション研究室 (H522)  高橋",True, (0, 0, 0))
         elif self.lang == 1:
             text_surface = font.render("     Takahashi at Playful Lab. ",True, (0, 0, 0))
             

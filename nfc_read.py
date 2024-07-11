@@ -14,6 +14,15 @@ class NFCReading():
         self.id_info = ""
         self.id_str = "Anonymous user"
         self.clf = None
+    
+    # 言語設定
+    def set_lang(self, i: int):
+        self.lang = i
+
+        if self.lang == 0:
+            self.id_str = "匿名ユーザ"
+        elif self.lang == 1:
+            self.id_str = "Anonymous user"
 
     def set_fx_pikon(self, s):
         self.pikon = s
@@ -50,7 +59,11 @@ class NFCReading():
     def on_release(self, tag: nfc.tag.Tag) -> None:
         print("released")
         self.id_info = ""
-        self.id_str = "Anonymous user"
+        if self.lang == 0:
+            self.id_str = "匿名ユーザ"
+        elif self.lang == 1:
+            self.id_str = "Anonymous user"
+    
         self.on_card = False
         return True
     

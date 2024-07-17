@@ -8,6 +8,7 @@ from scene_base import Scene
 # 造形前のクラス
 class PrintingResult(Scene):
     HOLD_TIME_MAX = 30
+    FINISH_TIME_MAX = 30
 
     roulette_speed = 60
     sleep_amout = 3
@@ -20,6 +21,7 @@ class PrintingResult(Scene):
         self.highlight_index = 0
         self.roulette_coutner = 0
         self.holdtime = 0
+        self.next_counter_time = 0
         
         self.stater = ""
         self.intervenor = []
@@ -190,7 +192,6 @@ class PrintingResult(Scene):
         image_size = 300
         self.images = img
         self.images = [pygame.transform.scale(img, (image_size, image_size)) for img in self.images]
-
 
     def set_starter(self, s: str):
         self.stater = s

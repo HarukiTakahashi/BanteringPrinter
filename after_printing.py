@@ -31,6 +31,8 @@ class AfterPrinting(Scene):
     def set_image_bed(self, img):
         self.image_bed = img
 
+    def set_image_arrow(self, img):
+        self.image_arrow= img
 
     def draw(self):
 
@@ -52,7 +54,6 @@ class AfterPrinting(Scene):
         font = pygame.font.Font(None, 36)
             
         self.screen.fill((255, 255, 255))
-        rect = pygame.Rect(100, 100,width - 200, 400)
         color = (0, 0, 0)
         bg_color = (255, 255, 255)
 
@@ -157,9 +158,12 @@ class AfterPrinting(Scene):
             text_surface = font.render("and there is nothing on it", True, color)
         self.screen.blit(text_surface, (img_right_x, img_position[1] + img_size+100))
         
+        # 矢印
+        self.screen.blit(self.image_arrow, (1190,830))
+
         # プログレスバー   
         bar_size = (400, 100)
-        bar_position = (width//2 - bar_size[0] // 2, height//2+300)
+        bar_position = (width//2 - bar_size[0] // 2, height//2+320)
     
         pygame.draw.rect(self.screen, WHITE, 
                          (bar_position[0], bar_position[1], bar_size[0], bar_size[1]))
@@ -186,7 +190,7 @@ class AfterPrinting(Scene):
             elif self.lang == 1:
                 text_surface = font.render("Hold the button! (3 sec)", True, color)
             
-            self.screen.blit(text_surface, (width//2-170, bar_position[1]+60))
+            self.screen.blit(text_surface, (width//2-155, bar_position[1]+60))
 
         else:
             font = pygame.font.Font(self.font_style, 42)

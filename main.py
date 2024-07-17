@@ -49,7 +49,7 @@ def setup_logger(log_file):
     logger.setLevel(logging.INFO)
 
     # ファイルハンドラの設定
-    file_handler = logging.FileHandler(log_file)
+    file_handler = logging.FileHandler(log_file,encoding='utf-8')
     file_handler.setLevel(logging.INFO)
 
     # フォーマットの設定
@@ -73,7 +73,7 @@ def main():
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,-100'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,0'
 
     # 初期化
     pygame.init()
@@ -131,6 +131,7 @@ def main():
     warn = pygame.image.load("image/warning.png")
     noz = pygame.image.load("image/nozzle.png")
     bed = pygame.image.load("image/bed.png")
+    arrow = pygame.image.load("image/arrow.png")
 
     # Scene 作成
     scenes = []
@@ -151,6 +152,7 @@ def main():
     s_after = AfterPrinting(screen)
     s_after.set_image_nozzle(pygame.transform.scale(noz, (50, 50)))
     s_after.set_image_bed(pygame.transform.scale( bed, (50, 50)))
+    s_after.set_image_arrow(pygame.transform.scale( arrow, (220, 100)))
     scenes.append(s_after)
 
     s_result = PrintingResult(screen)
@@ -222,10 +224,18 @@ def main():
 
                 # クリックされた
                 sound_fx_pa.play()
-                s_before.stop()
 
                 # シーン切り替えと造形開始前の処理
                 fname, ind = s_before.get_file()
+
+                # ログは可能な限り早く残す
+                log_message(task_logger, 'Print start,' + fname)
+                s_result.set_starter(nfc_read.id_str)
+
+
+                # ここで処理が一時停止するのでログは事前にのこす
+                s_before.stop()
+
                 s_before.printer.change_feedrate(50)
                 s_during.set_gcode_file_name(fname)
                 printer.open_gcode_file("gcode/" + fname)
@@ -236,9 +246,7 @@ def main():
                 s_after.setIndexOfFile(ind)
                 scene_stat = 1
 
-                # ログ
-                log_message(task_logger, 'Print start,' + fname)
-                s_result.set_starter(nfc_read.id_str)
+
 
         # 造形中の状態======================================================================
         elif scene_stat == 1:
@@ -259,11 +267,13 @@ def main():
                 scene_stat = 2
 
             if clicked: 
-                s_during.press()
                 sound_fx_kako.play()
+
                 # ログ
                 log_message(task_logger, 'Press button,' + str(printer.feedrate))
                 s_result.set_intervenor(nfc_read.id_str)
+
+                s_during.press()
         
         elif scene_stat == 2:
             # 造形後の状態
@@ -271,17 +281,15 @@ def main():
 
             if s_after.is_confirmed():
                 sound_fx_kin.play()
-                s_after.stop()
-
-                scene_stat = 3
-                s_result.roulette_active = True
-                
-                s_after.holdtime = 0
 
                 # ログ
                 log_message(task_logger, 'Object removed')
                 s_result.set_finisher(nfc_read.id_str)
 
+                s_after.stop()
+                scene_stat = 3
+                s_result.roulette_active = True                
+                s_after.holdtime = 0
 
             if pressed: 
                 s_after.hold_button()
@@ -297,6 +305,11 @@ def main():
             if s_result.is_confirmed():
                 # クリックされた
                 sound_fx_pa.play()
+
+                # ログ
+                log_message(task_logger, 'Evaluate object, ' + str(s_result.highlight_index))
+                del(task_logger)
+
                 s_result.stop()
 
                 s_result.holdtime = 0
@@ -304,9 +317,7 @@ def main():
                 s_result.reset_intervenor()
                 scene_stat = 0
 
-                # ログ
-                log_message(task_logger, 'Evaluate object, ' + str(s_result.highlight_index))
-                del(task_logger)
+
 
             if pressed: 
                 s_result.hold_button()

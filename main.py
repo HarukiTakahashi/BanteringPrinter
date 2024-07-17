@@ -196,6 +196,9 @@ def main():
     # プログラムのメイン関数
     while True:
     
+        s_after.draw()
+        continue
+    
         pressed = False
         clicked = False
 

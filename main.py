@@ -211,7 +211,7 @@ def main():
 
     pygame.time.Clock().tick(FPS)
 
-    printer.close_serial()
+    #printer.close_serial()
 
     # プログラムのメイン関数
     while True:

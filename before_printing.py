@@ -176,5 +176,3 @@ class BeforePrinting(Scene):
     def get_file(self):
         return self.gcode_file[self.highlight_index], self.highlight_index
     
-    
-

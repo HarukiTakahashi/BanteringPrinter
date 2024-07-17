@@ -15,6 +15,7 @@ class DuringPrinting(Scene):
         self.scene_num = 1
         self.image_button = None
         self.speed_up_amout = 10
+        self.timer = 0
 
     def set_image_button(self, img):
         self.image_button = img
@@ -250,3 +251,11 @@ class DuringPrinting(Scene):
        
     def set_gcode_file_name(self, f):
         self.gcode_file_name = f
+
+
+    def set_timer(self):
+        self.timer = time.time()
+        
+    def get_elasped_time(self):
+        return time.time() - self.timer
+

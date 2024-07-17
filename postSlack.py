@@ -1,55 +1,31 @@
 import os
 import time
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+import time, datetime
+import threading
 
-# Slackの設定
-SLACK_TOKEN = ''
-SLACK_CHANNEL = ''
+class Slack:
 
-client = WebClient(token=SLACK_TOKEN)
+    def __init__(self, token, channel,id):
+        self.SLACK_TOKEN = token
+        self.SLACK_CHANNEL = channel
+        self.SLACK_MEMBER_ID = id
+        self.client = WebClient(token=self.SLACK_TOKEN)
 
-class Watcher:
-    DIRECTORY_TO_WATCH = "C:\\test\\"
-
-    def __init__(self):
-        self.observer = Observer()
-
-    def run(self):
-        event_handler = Handler()
-        self.observer.schedule(event_handler, self.DIRECTORY_TO_WATCH, recursive=True)
-        self.observer.start()
-        try:
-            while True:
-                time.sleep(5)
-        except:
-            self.observer.stop()
-            print("Observer Stopped")
-
-        self.observer.join()
-
-class Handler(FileSystemEventHandler):
-
-    @staticmethod
-    def on_created(event):
-        if event.is_directory:
-            return None
-
+    def post(self, mes, notification=True):
+        d = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        
+        if notification:
+            m = "<@" + self.SLACK_MEMBER_ID + ">\n" + d + "\n" + mes
         else:
-            # ファイルが作成されたときに実行される処理
+            m = d + "\n" + mes
+        
+        try:
+            response = self.client.chat_postMessage(
+                channel=self.SLACK_CHANNEL,
+                text=m
+            )
+        except SlackApiError as e:
+            print(f"Slack API Error: {e.response['error']}")
 
-            fname = event.src_path.split("\\")[-1]
-
-            try:
-                response = client.chat_postMessage(
-                    channel=SLACK_CHANNEL,
-                    text=f"3Dプリントが開始されました : {fname}"
-                )
-            except SlackApiError as e:
-                print(f"Slack API Error: {e.response['error']}")
-
-if __name__ == '__main__':
-    w = Watcher()
-    w.run()

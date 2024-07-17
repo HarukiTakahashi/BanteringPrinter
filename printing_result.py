@@ -92,11 +92,11 @@ class PrintingResult(Scene):
         font = pygame.font.Font(self.font_style, 82)
         text_surface = font.render("Good!", True, color)
         self.screen.blit(text_surface, (rect_left_x+50, rect_y+50))
-        self.screen.blit(self.images[0], (rect_left_x+rect_w-300, rect_y))
+        self.screen.blit(self.eval_images[0], (rect_left_x+rect_w-300, rect_y))
 
         text_surface = font.render("Bad!", True, color)
         self.screen.blit(text_surface, (rect_right_x+50, rect_y+50))
-        self.screen.blit(self.images[1], (rect_right_x+rect_w-300, rect_y))
+        self.screen.blit(self.eval_images[1], (rect_right_x+rect_w-300, rect_y))
 
         cont_y = 620
 
@@ -190,8 +190,8 @@ class PrintingResult(Scene):
 
     def set_image(self, img: list):
         image_size = 300
-        self.images = img
-        self.images = [pygame.transform.scale(img, (image_size, image_size)) for img in self.images]
+        self.eval_images = img
+        self.eval_images = [pygame.transform.scale(img, (image_size, image_size)) for img in self.eval_images]
 
     def set_starter(self, s: str):
         self.stater = s

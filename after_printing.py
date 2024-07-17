@@ -66,11 +66,11 @@ class AfterPrinting(Scene):
         img_left_x = img_position[0] - img_size - img_margin
         img_right_x = img_position[0] + img_size + img_margin
 
-        self.screen.blit(self.images[0], 
+        self.screen.blit(self.remove_images[0], 
                          (img_left_x, img_position[1]))
-        self.screen.blit(self.images[1], 
+        self.screen.blit(self.remove_images[1], 
                          (img_position[0], img_position[1]))
-        self.screen.blit(self.images[2], 
+        self.screen.blit(self.remove_images[2], 
                          (img_right_x, img_position[1])) 
         
         # font = pygame.font.Font(None, 64)
@@ -158,8 +158,18 @@ class AfterPrinting(Scene):
             text_surface = font.render("and there is nothing on it", True, color)
         self.screen.blit(text_surface, (img_right_x, img_position[1] + img_size+100))
         
-        # 矢印
-        self.screen.blit(self.image_arrow, (1190,830))
+
+
+        font = pygame.font.Font(self.font_style, 22)
+        if self.printer.bed_temp < AfterPrinting.safe_bed_temp:
+            # 矢印
+            self.screen.blit(self.image_arrow, (1190,830))
+
+            if self.lang == 0:
+                text_surface = font.render("次の造形のためにボタンを押してください", True, RED)
+            elif self.lang == 1:
+                text_surface = font.render("Hold the button for the next print", True, RED)
+            self.screen.blit(text_surface, (img_right_x, img_position[1] + img_size+200))
 
         # プログレスバー   
         bar_size = (400, 100)
@@ -212,7 +222,7 @@ class AfterPrinting(Scene):
             text_surface = font.render(text, True, BLACK)
             text_rect = text_surface.get_rect()
 
-            bubble_padding = 20
+            bubble_padding = 0
             bubble_rect = pygame.Rect((bar_position[0],bar_position[1] - 150), 
                                       (text_rect.width + 2 * bubble_padding, text_rect.height + 2 * bubble_padding))
         
@@ -240,8 +250,7 @@ class AfterPrinting(Scene):
 
 
     def set_image(self, img: list):
-        self.images = img
-
+        self.remove_images = img
 
     def press(self):
         pass

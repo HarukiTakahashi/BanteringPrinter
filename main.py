@@ -11,7 +11,7 @@ from during_printing import DuringPrinting
 from after_printing import AfterPrinting
 from printing_result import PrintingResult
 from nfc_read import NFCReading
-
+from postSlack import Slack
 
 printer = None # Printerクラスのインスタンス
 scenes = []
@@ -25,6 +25,16 @@ FPS = 120
 LANGUAGE = 0
 FONT_STYLE = 'keifont.ttf'
 
+# Slack token
+SLACK_TOKEN = ''
+SLACK_CHANNEL = ''
+SLACK_MEMBER_ID = ''
+
+# ボタン連打通知間隔(sec)
+# ここに指定された時間以上経過しないとSlackへ通知されないように制限
+BUTTON_TIME_SPAN = 60
+
+# Gcodeファイルの読み込み
 def loadGcodeFiles():
     global printer, gcode_folder_path
 
@@ -41,8 +51,7 @@ def loadGcodeFiles():
     
     return gcodes, png_files
 
-
-# ログを残すようにしてみる
+# ロガーの設定
 def setup_logger(log_file):
     # ロガーの設定
     logger = logging.getLogger(log_file)
@@ -68,24 +77,27 @@ def log_message(logger, message=""):
     log_entry = f'{current_time},{nfc_read.id_str},{message}'
     logger.info(log_entry)
 
+# 初期化
+def init():
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,0'
+
+# メイン関数 ========================================================================
 def main():
     global printer, logger, nfc_read
 
     scene_stat = 0 # シーンの状態管理
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,0'
-
+    
     # 初期化
     pygame.init()
     pygame.mixer.init()
+    init()
     
     # 効果音ファイルの読み込み（例：effect.wav）
     sound_fx_pa = pygame.mixer.Sound('soundfx/pa.mp3')
     sound_fx_kin = pygame.mixer.Sound('soundfx/kin.mp3')
     sound_fx_kako = pygame.mixer.Sound('soundfx/kako.mp3')
     
-
-
     # 画面設定
     width, height = 1920, 1080 #1080
     screen = pygame.display.set_mode((width, height))
@@ -98,9 +110,9 @@ def main():
     print(gcode_file_list)
     print(png_file_list)
 
-    img_list = []
 
     # 画像の読み込み
+    img_list = []
     for img_file in png_file_list:
         try:
             img = pygame.image.load(gcode_folder_path + "/" +img_file)
@@ -111,7 +123,7 @@ def main():
     # Printerクラスのインスタンス化
     printer = Printer()
     if printer.connect() == None:
-        #print("cannot connect with a 3D printer")
+        print("cannot connect with a 3D printer")
         pass
 
     printer.start_reading()
@@ -121,10 +133,14 @@ def main():
     # NFC_readクラスのインスタンス化
     nfc_read = NFCReading()
     nfc_read.start_reading()
-
     nfc_read.set_fx_pikon(pygame.mixer.Sound('soundfx/pikon.mp3'))
     nfc_read.set_fx_bubu(pygame.mixer.Sound('soundfx/bubu.mp3'))
+    nfc_read.set_lang(LANGUAGE)
     
+    # Slackポスト用クラスのインスタンス化
+    slack = Slack(SLACK_TOKEN, SLACK_CHANNEL,SLACK_MEMBER_ID)
+    
+    # 画像の読み込み
     icon = pygame.image.load("image/icons.png")
     qr = pygame.image.load("image/questionnaire.png")
     qr = pygame.transform.scale(qr, (200, 200))
@@ -142,22 +158,36 @@ def main():
     s_before.roulette_active = True
     s_before.set_image_button(pygame.image.load("image/button.png"))
 
-    
+    # 造形中のシーン
     s_during = DuringPrinting(screen)
     scenes.append(s_during)
     s_during.set_image_button(pygame.image.load("image/button.png"))
     s_during.set_image_nozzle(noz)
     s_during.set_image_bed(bed)
-       
+    
+    # 造形後のシーン
     s_after = AfterPrinting(screen)
+    scenes.append(s_after)
     s_after.set_image_nozzle(pygame.transform.scale(noz, (50, 50)))
     s_after.set_image_bed(pygame.transform.scale( bed, (50, 50)))
     s_after.set_image_arrow(pygame.transform.scale( arrow, (220, 100)))
-    scenes.append(s_after)
+    aft_img = [pygame.image.load("image/after_1.png"),
+               pygame.image.load("image/after_2.png"),
+               pygame.image.load("image/after_3.png")
+    ]
+    s_after.set_image(aft_img)
 
+
+    # 評価のシーン
     s_result = PrintingResult(screen)
     scenes.append(s_result)
+    res_img = [pygame.image.load("image/result_good.png"),
+               pygame.image.load("image/result_bad.png")
+    ]
+    s_result.set_image(res_img)
 
+
+    # シーンの設定
     for s in scenes:
         s.set_printer(printer)
         s.set_nfc(nfc_read)
@@ -168,24 +198,12 @@ def main():
         s.set_QR_image(qr)
         s.set_warning_image(warn)
         s.set_FPS(FPS)
-    nfc_read.set_lang(LANGUAGE)
-
-    aft_img = [pygame.image.load("image/after_1.png"),
-               pygame.image.load("image/after_2.png"),
-               pygame.image.load("image/after_3.png")
-    ]
-    s_after.set_image(aft_img)
-
-    res_img = [pygame.image.load("image/result_good.png"),
-               pygame.image.load("image/result_bad.png")
-    ]
-    s_result.set_image(res_img)
-
-
+        
     # ロガーの設定
     log_file = 'log/system.log'
     logger = setup_logger(log_file)
     log_message(logger, message='System start')
+    # slack.post('System start')
 
     # プリントタスクごとのロガー
     task_file = ""
@@ -193,12 +211,11 @@ def main():
 
     pygame.time.Clock().tick(FPS)
 
+    printer.close_serial()
+
     # プログラムのメイン関数
     while True:
-    
-        s_after.draw()
-        continue
-    
+        
         pressed = False
         clicked = False
 
@@ -218,13 +235,15 @@ def main():
 
             s_before.draw()
             
+            # 造形対象決定
             if clicked:
                 #log_message(logger, 'Gcode File Selected')
 
                 # プリントタスクごとのロガー
-                task_file = 'log/' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".log"
+                d = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                task_file = 'log/' + d + ".log"
                 task_logger = setup_logger(task_file)
-
+                
                 # クリックされた
                 sound_fx_pa.play()
 
@@ -235,6 +254,8 @@ def main():
                 log_message(task_logger, 'Print start,' + fname)
                 s_result.set_starter(nfc_read.id_str)
 
+                # Slackにポスト
+                slack.post(":bulb: 造形開始！\n"+fname)
 
                 # ここで処理が一時停止するのでログは事前にのこす
                 s_before.stop()
@@ -256,7 +277,7 @@ def main():
             
         
             s_during.draw()
-            #time.sleep(10)
+
             
             if not printer.serial.is_open:
                 print("to scene 2")
@@ -267,10 +288,18 @@ def main():
             if not printer.is_printing:
                 print("done")
                 log_message(task_logger, 'Finish printing')
+                # Slackにポスト
+                slack.post(":white_check_mark: 造形完了！\n")
+
                 scene_stat = 2
 
             if clicked: 
                 sound_fx_kako.play()
+                               
+                if s_during.get_elasped_time() > 60:
+                    # Slackにポスト
+                    slack.post(":rotating_light: 造形中にボタンが押されました！\n",notification=False)
+                s_during.set_timer()
 
                 # ログ
                 log_message(task_logger, 'Press button,' + str(printer.feedrate))
@@ -287,6 +316,9 @@ def main():
 
                 # ログ
                 log_message(task_logger, 'Object removed')
+                # Slackにポスト
+                slack.post(":broom: 取り外し作業完了\n")
+                
                 s_result.set_finisher(nfc_read.id_str)
 
                 s_after.stop()
@@ -307,20 +339,20 @@ def main():
 
             if s_result.is_confirmed():
                 # クリックされた
-                sound_fx_pa.play()
+                sound_fx_pa.play() 
 
                 # ログ
                 log_message(task_logger, 'Evaluate object, ' + str(s_result.highlight_index))
                 del(task_logger)
-
+                # Slackにポスト
+                slack.post(":100: 評価完了: " + str(s_result.highlight_index)+"\n===")
+                
                 s_result.stop()
 
                 s_result.holdtime = 0
                 s_before.roulette_active = True
                 s_result.reset_intervenor()
                 scene_stat = 0
-
-
 
             if pressed: 
                 s_result.hold_button()

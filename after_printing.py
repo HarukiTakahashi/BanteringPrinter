@@ -12,6 +12,7 @@ class AfterPrinting(Scene):
     item_margin = 10
 
     HOLD_TIME_MAX = 60
+    MES_FLIP_TIME = 10 # sec
 
     # 温度設定
     safe_nozzle_temp = 50
@@ -24,6 +25,9 @@ class AfterPrinting(Scene):
         self.name = "AfterPrinting"
         self.scene_num = 2
         self.holdtime = 0
+        self.mes_flag = 0
+        
+        self.cur_time = int(time.time())
         
     def set_image_nozzle(self, img):
         self.image_nozzle = img
@@ -35,6 +39,11 @@ class AfterPrinting(Scene):
         self.image_arrow= img
 
     def draw(self):
+        
+        
+        if int(time.time()) - self.cur_time >= AfterPrinting.MES_FLIP_TIME: 
+            self.mes_flag = 1 - self.mes_flag
+            self.cur_time = int(time.time())
 
         # 色の定義
         WHITE = (255, 255, 255)
@@ -83,10 +92,16 @@ class AfterPrinting(Scene):
                 text_surface = font.render("Completed! Cooling down, please wait a while!", True, RED)
             self.screen.blit(text_surface, (200, img_position[1]-100))
         else:
-            if self.lang == 0:
-                text_surface = font.render("冷却完了！印刷物の取り外しにご協力ください！", True, BLUE)
-            elif self.lang == 1:
-                text_surface = font.render("Completed! Help us remove the result!", True, BLUE)
+            if self.mes_flag == 0:
+                if self.lang == 0:
+                    text_surface = font.render("冷却完了！印刷物の取り外しにご協力ください！", True, BLUE)
+                elif self.lang == 1:
+                    text_surface = font.render("Completed! Help us remove the result!", True, BLUE)
+            else:
+                if self.lang == 0:
+                    text_surface = font.render("印刷物を回収したらボタンを押してください！", True, BLUE)
+                elif self.lang == 1:
+                    text_surface = font.render("Press the button after collecting the result.", True, BLUE)
             self.screen.blit(text_surface, (200, img_position[1]-100))
        
         font = pygame.font.Font(self.font_style, 36)
@@ -222,9 +237,9 @@ class AfterPrinting(Scene):
             text_surface = font.render(text, True, BLACK)
             text_rect = text_surface.get_rect()
 
-            bubble_padding = 0
-            bubble_rect = pygame.Rect((bar_position[0],bar_position[1] - 150), 
-                                      (text_rect.width + 2 * bubble_padding, text_rect.height + 2 * bubble_padding))
+            bubble_padding = 20
+            bubble_rect = pygame.Rect((bar_position[0]-70,bar_position[1] - 150), 
+                                      (text_rect.width + bubble_padding*2, text_rect.height + 2 * bubble_padding))
         
             # 吹き出しの本体部分
             pygame.draw.rect(self.screen, BUBBLE_COLOR, bubble_rect)

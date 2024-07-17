@@ -311,6 +311,7 @@ def main():
             # 造形後の状態
             s_after.draw()
 
+            # 評価フェーズへ
             if s_after.is_confirmed():
                 sound_fx_kin.play()
 
@@ -323,8 +324,13 @@ def main():
 
                 s_after.stop()
                 scene_stat = 3
-                s_result.roulette_active = True                
+                
+                s_result.roulette_active = True
+                s_result.highlight_index = 0
+                s_result.roulette_coutner = 0                
                 s_after.holdtime = 0
+                
+                s_result.set_timeout()
 
             if pressed: 
                 s_after.hold_button()
@@ -337,9 +343,12 @@ def main():
             #print("hi")
             #time.sleep(1)
 
-            if s_result.is_confirmed():
+            if s_result.is_confirmed() or s_result.check_timeout():
                 # クリックされた
                 sound_fx_pa.play() 
+
+                if s_result.check_timeout():
+                    s_result.highlight_index = -1
 
                 # ログ
                 log_message(task_logger, 'Evaluate object, ' + str(s_result.highlight_index))

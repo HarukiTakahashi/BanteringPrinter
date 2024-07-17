@@ -13,6 +13,8 @@ class PrintingResult(Scene):
     roulette_speed = 60
     sleep_amout = 3
     
+    EVALUATE_TIME_OUT = 20
+    
     def __init__(self, s):
         super().__init__(s)
         self.name = "PrintingResult"
@@ -26,6 +28,8 @@ class PrintingResult(Scene):
         self.stater = ""
         self.intervenor = []
         self.finisher = ""
+        
+        self.timeout_timer = 0
         
          
     def draw(self):
@@ -83,7 +87,7 @@ class PrintingResult(Scene):
             pygame.draw.rect(self.screen, RED_A, (rect_left_x,rect_y,
                                                   rect_w * (self.holdtime/PrintingResult.HOLD_TIME_MAX),rect_h))
             pygame.draw.rect(self.screen, RED, (rect_left_x,rect_y,rect_w,rect_h), border_thickness)
-        else:
+        elif self.highlight_index == 1:
             pygame.draw.rect(self.screen, RED_A, (rect_right_x,rect_y,
                                                   rect_w * (self.holdtime/PrintingResult.HOLD_TIME_MAX),rect_h))
             pygame.draw.rect(self.screen, RED, (rect_right_x,rect_y,rect_w,rect_h), border_thickness)
@@ -134,7 +138,16 @@ class PrintingResult(Scene):
         text_surface = font.render("... and You!", True, GREEN)
         self.screen.blit(text_surface, (300, cont_y+280))        
 
-
+        # 印刷物がない場合はしばらくお待ちください
+        c = PrintingResult.EVALUATE_TIME_OUT - (int(time.time()) - self.timeout_timer) 
+        if c < 0:
+            c = 0
+        font = pygame.font.Font(self.font_style, 20)
+        if self.lang == 0:
+            text_surface = font.render("印刷物がない場合はしばらくお待ちください（" + str(c) + ")", True, BLACK)
+        elif self.lang == 1:
+            text_surface = font.render("Wait a moment if there is no printed object.（" + str(c) + ")", True, BLACK)
+        self.screen.blit(text_surface, (width//2 + 350, rect_y-30))    
         
         # ルーレットストップ
         if self.is_confirmed():
@@ -216,6 +229,15 @@ class PrintingResult(Scene):
 
     def is_confirmed(self):
         if self.holdtime >= PrintingResult.HOLD_TIME_MAX:
+            return True
+        else:
+            return False
+        
+    def set_timeout(self):
+        self.timeout_timer = int(time.time())
+        
+    def check_timeout(self):
+        if int(time.time()) - self.timeout_timer > PrintingResult.EVALUATE_TIME_OUT:
             return True
         else:
             return False

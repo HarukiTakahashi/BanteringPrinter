@@ -18,6 +18,7 @@ scenes = []
 nfc_read = None
 gcode_folder_path = "./gcode" # Gcodeフォルダのパスを設定
 logger = None
+slack = None
 FPS = 120
 
 # 0: JP
@@ -28,7 +29,7 @@ FONT_STYLE = 'keifont.ttf'
 # Slack token
 SLACK_TOKEN = ''
 SLACK_CHANNEL = ''
-SLACK_MEMBER_ID = ''
+SLACK_MEMBER_ID = '' 
 
 # ボタン連打通知間隔(sec)
 # ここに指定された時間以上経過しないとSlackへ通知されないように制限
@@ -83,7 +84,7 @@ def init():
 
 # メイン関数 ========================================================================
 def main():
-    global printer, logger, nfc_read
+    global printer, logger, nfc_read, slack
 
     scene_stat = 0 # シーンの状態管理
 
@@ -203,7 +204,7 @@ def main():
     log_file = 'log/system.log'
     logger = setup_logger(log_file)
     log_message(logger, message='System start')
-    # slack.post('System start')
+    slack.post(":airplane_departure: システム起動\n")
 
     # プリントタスクごとのロガー
     task_file = ""
@@ -274,11 +275,9 @@ def main():
 
         # 造形中の状態======================================================================
         elif scene_stat == 1:
-            
-        
+                    
             s_during.draw()
 
-            
             if not printer.serial.is_open:
                 print("to scene 2")
                 time.sleep(1)
@@ -377,4 +376,6 @@ if __name__ == "__main__":
         pygame.quit()
         printer.close_serial()
         log_message(logger, message='System end')
+        slack.post(":no_entry: システム終了\n")
+
         os._exit(-1) 

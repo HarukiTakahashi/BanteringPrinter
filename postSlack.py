@@ -13,7 +13,7 @@ class Slack:
         self.SLACK_MEMBER_ID = id
         self.client = WebClient(token=self.SLACK_TOKEN)
 
-    def post(self, mes, notification=True):
+    def post(self, mes, notification=False):
         d = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         
         if notification:

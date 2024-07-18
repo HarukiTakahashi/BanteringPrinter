@@ -1,5 +1,6 @@
 import serial
 import re
+import math
 from serial.tools import list_ports
 import time, datetime
 import threading
@@ -7,6 +8,7 @@ import threading
 class Printer():
     COMMAND_BUFFER_MAX = 8
     DEFAULT_FEEDRATE = 100
+    DIVISION_INTERVAL = 1
     #event = threading.Event()
 
     START_GCODE = [
@@ -80,7 +82,8 @@ class Printer():
     def printing(self):
         self.is_printing = True
         self.is_starting_up = True
-        
+    
+
         self.gcode_printing = Printer.START_GCODE + list(self.gcode)
         self.gcode_len = len(self.gcode_printing)
 
@@ -305,6 +308,14 @@ class Printer():
     def open_gcode_file(self, path):
         f = open(path, "r")
         self.gcode = f.readlines()
+
+        # Gcodeを細かく分割
+        print("分割開始")
+        self.gcode = self.divideGcode(self.gcode)
+        print("分割完了")
+
+        with open('test.txt', 'w') as f:
+            f.writelines(self.gcode)
         
     def close_serial(self):
         self.serial_force_send("M84")
@@ -314,10 +325,137 @@ class Printer():
         self.serial.close()
         print("serial closed")    
 
-
     def get_progress(self):
         c = len(self.gcode_printing)
         m = self.gcode_len
         if c > m:
             c = m
         return c, m
+    
+    # Gcodeの移動命令を細かく分割する
+    def divideGcode(self, gcode):
+        x = None
+        y = None
+        e = None
+        f = None
+        pattern = re.compile(r"X([\d\.]+)|Y([\d\.]+)|E([\d\.]+)|F([\d\.]+)")
+
+        # 0: absolute (M82)
+        # 1: relative (M83)
+        ext_mode = 0
+        new_gcode =[]
+
+        for g in gcode:
+            g = g.strip()
+            # print("!!!!!" + g)
+
+            if "M82" in g:
+                ext_mode = 0
+                new_gcode.append(g+"\n")
+                continue
+            if "M83" in g:
+                ext_mode = 1
+                new_gcode.append(g+"\n")
+                continue
+
+            if g.find(";") == 0 or len(g) == 0:
+                new_gcode.append(g+"\n")
+                continue
+
+            pos = -1
+            pos = g.find(";")
+            if pos != -1:
+                g = g[:pos]
+
+            matches = pattern.findall(g)
+            cx = None
+            cy = None
+            ce = None
+            cf = None
+            for match in matches:
+                if match[0]:  # Xの値がある場合
+                    cx = (float(match[0]))
+                    if x is None:
+                        x = cx
+                if match[1]:  # Yの値がある場合
+                    cy = (float(match[1]))
+                    if y is None:
+                        y = cy
+                if match[2]:  # Eの値がある場合
+                    ce = (float(match[2]))
+                    if e is None:
+                        e = ce
+                if match[3]:  # Fの値がある場合
+                    cf = (float(match[3]))
+                    if f is None:
+                        f = cf
+
+            if "G92" in g:
+                e = ce
+                new_gcode.append(g+"\n")
+                continue
+
+            if "G0" in g:
+                x = cx
+                y = cy
+                if cf is not None:
+                    f = cf
+                new_gcode.append(g+"\n")
+                continue
+
+            if cx is None or cy is None or ce is None:
+                new_gcode.append(g+"\n")
+                continue
+
+            # print(x, cx, " - ", y, cy, " - ", e , ce, " - ", f, cf)
+
+            if "G1" in g:
+                # 頂点の生成
+                distance = self.calculate_distance(x, y, cx, cy)
+                ext_amount = 0
+                if ext_mode == 0:
+                    ext_amount = ce - e
+                    if ext_amount < 0:
+                        # リトラクションかリセット
+                        ext_amount = ce
+                elif ext_mode == 1:
+                    ext_amount = ce
+
+                num_points = int(distance // Printer.DIVISION_INTERVAL)
+
+                # print(distance, num_points, ext_amount)
+                for i in range(1, num_points + 1):
+
+                    ratio = (Printer.DIVISION_INTERVAL * i) / distance
+                    new_x = "{:.2f}".format(x + (cx - x) * ratio)
+                    new_y = "{:.2f}".format(y + (cy - y) * ratio)
+                    if cf is not None:
+                        new_f = "{:.1f}".format(cf)
+                    else:
+                        new_f = "{:.1f}".format(f)
+
+                    e_ratio = (ext_amount/(num_points+1) * i) / ext_amount
+                    if ce is None:
+                        new_gcode.append("G1 F" + new_f + " X" + new_x + " Y" + new_y + " ; add without e \n")
+                    else:
+                        if ext_mode == 0:
+                            new_e = "{:.5f}".format(e + e_ratio*ext_amount)
+                        elif ext_mode == 1:
+                            new_e = "{:.5f}".format(e_ratio*ext_amount)
+                        new_gcode.append("G1 F" + new_f + " X" + new_x + " Y" + new_y + " E" + new_e + " ; add \n")
+
+            new_gcode.append(g+"\n")
+
+            # 次のGcodeへ
+            x = cx
+            y = cy
+            e = ce
+            if cf is not None:
+                f = cf
+
+
+        return new_gcode
+
+    def calculate_distance(self, x1, y1, x2, y2):
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+

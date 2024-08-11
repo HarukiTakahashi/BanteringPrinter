@@ -32,6 +32,11 @@ class BeforePrinting(Scene):
     def set_image_button(self, img):
         self.image_button = img
 
+
+    def shuffle(self):
+        items_num = len(self.gcode_file)
+        self.highlight_index = random_number = random.randint(0, items_num-1)
+
     def draw(self):
         BLACK = (0,0,0)
 

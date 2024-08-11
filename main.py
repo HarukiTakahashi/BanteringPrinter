@@ -295,7 +295,7 @@ def main():
 
             if clicked: 
                 sound_fx_kako.play()
-                               
+
                 if s_during.get_elasped_time() > 60:
                     # Slackにポスト
                     slack.post(":rotating_light: 造形中にボタンが押されました！\n",notification=False)
@@ -360,6 +360,7 @@ def main():
 
                 s_result.holdtime = 0
                 s_before.roulette_active = True
+                s_before.shuffle() # ルーレットの開始地点をシャッフルする
                 s_result.reset_intervenor()
                 scene_stat = 0
 

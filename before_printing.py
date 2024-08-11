@@ -16,7 +16,7 @@ class BeforePrinting(Scene):
     roulette_speed = 10
     sleep_amout = 3
     
-    roulette_random = True
+    roulette_random = False #True
 
     def __init__(self, s):
         super().__init__(s)

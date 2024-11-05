@@ -80,11 +80,11 @@ def log_message(logger, message=""):
 
 # 初期化
 def init():
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,0'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,80'
 
 # メイン関数 ========================================================================
 def main():
-    global printer, logger, nfc_read, slack
+    global printer, logger, nfc_read, slack, LANGUAGE
 
     scene_stat = 0 # シーンの状態管理
 
@@ -101,8 +101,8 @@ def main():
     
     # 画面設定
     width, height = 1920, 1080 #1080
-    screen = pygame.display.set_mode((width, height))
-    #screen = pygame.display.set_mode((width, height),FULLSCREEN)
+    #screen = pygame.display.set_mode((width, height))
+    screen = pygame.display.set_mode((width, height),FULLSCREEN)
     
     pygame.display.set_caption('Title')
 
@@ -219,14 +219,20 @@ def main():
         
         pressed = False
         clicked = False
+        
 
         # マウス、キーボードなどの入力処理
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            elif (event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN): # and not selected:
+            elif (event.type == pygame.MOUSEBUTTONDOWN): # and not selected:
                 clicked = True
-            
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_l: 
+                LANGUAGE = 1 - LANGUAGE
+                nfc_read.set_lang(LANGUAGE)
+                for s in scenes:
+                    s.set_lang(LANGUAGE)
+                        
         mouse_buttons = pygame.mouse.get_pressed()
         if mouse_buttons[0]:
             pressed = True
@@ -244,9 +250,6 @@ def main():
                 d = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                 task_file = 'log/' + d + ".log"
                 task_logger = setup_logger(task_file)
-                
-                # クリックされた
-                sound_fx_pa.play()
 
                 # シーン切り替えと造形開始前の処理
                 fname, ind = s_before.get_file()
@@ -257,6 +260,9 @@ def main():
 
                 # Slackにポスト
                 slack.post(":bulb: 造形開始！\n"+fname)
+                
+                # クリックされた
+                sound_fx_pa.play()
 
                 # ここで処理が一時停止するのでログは事前にのこす
                 s_before.stop()
@@ -269,9 +275,9 @@ def main():
                 s_before.setIndexOfFile(ind)
                 s_during.setIndexOfFile(ind)
                 s_after.setIndexOfFile(ind)
-                scene_stat = 1
 
-
+                # 1だよ
+                scene_stat = 2
 
         # 造形中の状態======================================================================
         elif scene_stat == 1:

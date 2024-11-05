@@ -96,12 +96,12 @@ class AfterPrinting(Scene):
                 if self.lang == 0:
                     text_surface = font.render("冷却完了！印刷物の取り外しにご協力ください！", True, BLUE)
                 elif self.lang == 1:
-                    text_surface = font.render("Completed! Help us remove the result!", True, BLUE)
+                    text_surface = font.render("Completed! Help us remove the object!", True, BLUE)
             else:
                 if self.lang == 0:
                     text_surface = font.render("印刷物を回収したらボタンを押してください！", True, BLUE)
                 elif self.lang == 1:
-                    text_surface = font.render("Press the button after collecting the result.", True, BLUE)
+                    text_surface = font.render("Press the button after collecting the object.", True, BLUE)
             self.screen.blit(text_surface, (200, img_position[1]-100))
        
         font = pygame.font.Font(self.font_style, 36)
@@ -133,7 +133,7 @@ class AfterPrinting(Scene):
         self.screen.blit(self.image_bed, (img_left_x+190, img_position[1] + img_size//2 + 110))            
         self.screen.blit(text_surface, (img_left_x+250, img_position[1] + img_size//2 + 120))
 
-        font = pygame.font.Font(self.font_style, 26)
+        font = pygame.font.Font(self.font_style, 24)
         if self.lang == 0:
             text_surface = font.render("温度が下がるまでお待ち下さい。", True, color)            
         elif self.lang == 1:
@@ -143,7 +143,7 @@ class AfterPrinting(Scene):
         if self.lang == 0:
             text_surface = font.render("高温時は触れないでください！", True, RED)
         elif self.lang == 1:
-            text_surface = font.render("Do not touch them at high temperatures!", True, RED)
+            text_surface = font.render("Don't touch them at high temperatures!", True, RED)
         self.screen.blit(text_surface, (img_left_x, img_position[1] + img_size+100))
 
 
@@ -203,10 +203,10 @@ class AfterPrinting(Scene):
             font = pygame.font.Font(self.font_style, 42)
             if self.lang == 0:
                 text_surface = font.render("作業完了！", True, color)
+                self.screen.blit(text_surface, (width//2-90, bar_position[1]+10))
             elif self.lang == 1:
-                text_surface = font.render("Did it!", True, color)
-        
-            self.screen.blit(text_surface, (width//2-90, bar_position[1]+10))
+                text_surface = font.render("Completed!", True, color)
+                self.screen.blit(text_surface, (width//2-130, bar_position[1]+10))
 
 
             font = pygame.font.Font(self.font_style, 28)

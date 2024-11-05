@@ -61,7 +61,7 @@ class Scene():
     def drawAll(self):
         self.drawTemperature()
         self.drawUserInfo()
-        self.drawQR()
+        #self.drawQR()
         self.drawProcess()
         self.drawWanring()
         pygame.display.flip()
@@ -157,7 +157,7 @@ class Scene():
             if self.lang == 0:
                 te = "匿名ユーザ（学生証を置くと操作記録が残せます）"
             elif self.lang == 1:
-                te = "Anonymous user (place your ID to log your operation)"
+                te = "Anonymous user" # (place your ID)"
             
             pygame.draw.rect(self.screen, (200,200,200), (0, 0, width, text_h))
             text_surface = font_u.render("" + str(te), True, (0, 0, 0))
@@ -184,39 +184,52 @@ class Scene():
         te = ""
 
         for i in range(4):
-            pygame.draw.rect(self.screen, LIGHT_YELLOW, (start_x+(margin+box_w)*i, start_y, box_w, box_h))
 
-            if self.scene_num == i:
-                pygame.draw.rect(self.screen, LIGHT_ORANGE, (start_x+(margin+box_w)*i, start_y, box_w, box_h))
+            if self.lang == 0:
+                pygame.draw.rect(self.screen, LIGHT_YELLOW, (start_x+(margin+box_w)*i, start_y, box_w, box_h))
+                if self.scene_num == i:
+                    pygame.draw.rect(self.screen, LIGHT_ORANGE, (start_x+(margin+box_w)*i, start_y, box_w, box_h))
 
-            if i == 0:
-                if self.lang == 0:
+                font_u = pygame.font.Font(self.font_style, 36)
+                if i == 0:
                     te = "開始"
-                elif self.lang == 1:
-                    te = "Start"
-            if i == 1:
-                if self.lang == 0:
+                if i == 1:
                     te = "印刷"
-                elif self.lang == 1:
-                    te = "Print"
-            if i == 2:
-                if self.lang == 0:
+                if i == 2:
                     te = "取外"
-                elif self.lang == 1:
-                    te = "Remove"
-            if i == 3:
-                if self.lang == 0:
+                if i == 3:
                     te = "評価"
-                elif self.lang == 1:
-                    te = "Eval"
 
-            if i == self.scene_num:
-                text_surface = font_u.render("" + str(te), True, BLACK)
-                self.screen.blit(text_surface, (start_x+(margin+box_w)*i + offset_x,start_y+5))
-            else:
-                text_surface = font_u.render("" + str(te), True, GRAY)
-                self.screen.blit(text_surface, (start_x+(margin+box_w)*i + offset_x,start_y+5))
+                if i == self.scene_num:
+                    text_surface = font_u.render("" + str(te), True, BLACK)
+                    self.screen.blit(text_surface, (start_x+(margin+box_w)*i + offset_x,start_y+5))
+                else:
+                    text_surface = font_u.render("" + str(te), True, GRAY)
+                    self.screen.blit(text_surface, (start_x+(margin+box_w)*i + offset_x,start_y+5))
 
+            if self.lang == 1:
+                offx = 150
+                wsize = 40
+                pygame.draw.rect(self.screen, LIGHT_YELLOW, (start_x-offx+(margin+box_w+wsize)*i, start_y, box_w+wsize, box_h))
+                if self.scene_num == i:
+                    pygame.draw.rect(self.screen, LIGHT_ORANGE, (start_x-offx+(margin+box_w+wsize)*i, start_y, box_w+wsize, box_h))
+
+                font_u = pygame.font.Font(self.font_style, 36)
+                if i == 0:
+                    te = "Start"
+                if i == 1:
+                    te = "Print"
+                if i == 2:
+                    te = "Comp."
+                if i == 3:
+                    te = "Eval."
+
+                if i == self.scene_num:
+                    text_surface = font_u.render("" + str(te), True, BLACK)
+                    self.screen.blit(text_surface, (start_x-offx+(margin+box_w+wsize)*i + offset_x,start_y+5))
+                else:
+                    text_surface = font_u.render("" + str(te), True, GRAY)
+                    self.screen.blit(text_surface, (start_x-offx+(margin+box_w+wsize)*i + offset_x,start_y+5))
 
 
     # 画面にグリッドを表示

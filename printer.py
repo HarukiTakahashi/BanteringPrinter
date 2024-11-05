@@ -314,8 +314,8 @@ class Printer():
         self.gcode = self.divideGcode(self.gcode)
         print("分割完了")
 
-        with open('test.txt', 'w') as f:
-            f.writelines(self.gcode)
+        #with open('test.txt', 'w') as f:
+        #    f.writelines(self.gcode)
         
     def close_serial(self):
         self.serial_force_send("M84")

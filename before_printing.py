@@ -13,10 +13,10 @@ class BeforePrinting(Scene):
     item_num_line = 5
     margin = 50
     
-    roulette_speed = 10
+    roulette_speed = 5
     sleep_amout = 3
     
-    roulette_random = False #True
+    roulette_random = True
 
     def __init__(self, s):
         super().__init__(s)

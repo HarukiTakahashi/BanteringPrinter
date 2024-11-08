@@ -64,6 +64,7 @@ class Scene():
         #self.drawQR()
         self.drawProcess()
         self.drawWanring()
+
         pygame.display.flip()
 
     # プリンタの温度について表示
@@ -154,11 +155,15 @@ class Scene():
                 self.screen.blit(self.icons[num%20], (40, -5))
 
         else:
-            if self.lang == 0:
-                te = "匿名ユーザ（学生証を置くと操作記録が残せます）"
-            elif self.lang == 1:
-                te = "Anonymous user" # (place your ID)"
-            
+            if self.nfc_res.clf != None:
+                if self.lang == 0:
+                    te = "匿名ユーザ（学生証を置くと操作記録が残せます）"
+                elif self.lang == 1:
+                    te = "Anonymous user" # (place your ID)"
+            else:
+                te = "Press the button to 3D print!"
+
+
             pygame.draw.rect(self.screen, (200,200,200), (0, 0, width, text_h))
             text_surface = font_u.render("" + str(te), True, (0, 0, 0))
             self.screen.blit(text_surface, (text_x_pos,text_h_margin))

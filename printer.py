@@ -47,6 +47,7 @@ class Printer():
         self.is_printing = False
         self.is_starting_up = False
         self.is_waiting = False
+        self.is_observing = False
         self.enable_check_temp = True
         self.feedrate = 100
 
@@ -459,3 +460,7 @@ class Printer():
     def calculate_distance(self, x1, y1, x2, y2):
         return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
+
+    # 観察モード
+    def observe(self):
+        pass

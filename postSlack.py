@@ -11,9 +11,13 @@ class Slack:
         self.SLACK_TOKEN = token
         self.SLACK_CHANNEL = channel
         self.SLACK_MEMBER_ID = id
+        self.ENABLE = False
         self.client = WebClient(token=self.SLACK_TOKEN)
 
     def post(self, mes, notification=False):
+        if self.ENABLE is False:
+            return
+        
         d = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         
         if notification:
@@ -28,4 +32,7 @@ class Slack:
             )
         except SlackApiError as e:
             print(f"Slack API Error: {e.response['error']}")
+
+    def enable(self, b):
+        self.ENABLE = b
 

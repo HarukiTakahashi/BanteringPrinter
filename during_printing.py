@@ -8,6 +8,9 @@ from scene_base import Scene
 # 造形中のクラス
 class DuringPrinting(Scene):
     
+    HOLD_TIME_MAX = 180
+    HOLD_TIME_THREASHOLD = 60
+
     def __init__(self, s):
         super().__init__(s)
         self.name = "DuringPrinting"
@@ -15,6 +18,7 @@ class DuringPrinting(Scene):
         self.scene_num = 1
         self.image_button = None
         self.speed_up_amout = 10
+        self.holdtime = 0
         self.timer = 0
 
     def set_image_button(self, img):
@@ -26,12 +30,17 @@ class DuringPrinting(Scene):
     def set_image_bed(self, img):
         self.image_bed = img
 
+    def set_image_check_man(self, img):
+        self.image_check = pygame.transform.scale(img, (500, 500))
+
     def draw(self):
 
         # 色の定義
         WHITE = (255, 255, 255)
         GREEN = (0, 255, 0)
         RED = (255, 0, 0)
+        RED_A = (255, 230, 230)
+        RED_A = (255, 230, 230,)
         BLACK = (0, 0, 0)
         ORANGE = (241,90,34)
         # 画面設定
@@ -202,7 +211,6 @@ class DuringPrinting(Scene):
             pygame.draw.rect(self.screen, RED, (bar_speed_position[0], bar_speed_position[1], bar_speed_size[0] * (c / m), bar_speed_size[1]))
             pygame.draw.rect(self.screen, BLACK, (bar_speed_position[0], bar_speed_position[1], bar_speed_size[0], bar_speed_size[1]), 2)
 
-
         # プログレスバーの設定
         prg_x_pos = 100
         bar_position = (prg_x_pos, height-200)
@@ -230,9 +238,40 @@ class DuringPrinting(Scene):
 
 
         # 造形対象の画像表示
+
+        rect_x = 150
+        rect_y = 200
+
         #print(self.images[self.selected_index])
         img = self.images[self.selected_index]
-        self.screen.blit(img, (150, 200))
+        self.screen.blit(img, (rect_x, rect_y))
+
+        # チェックおじさん描画
+        rect_w = 500
+        rect_h = 500
+        alpha = 200
+
+        # チェックの発動条件
+        # 10%ぐらい造形が進んでいることを条件にする？
+        if self.holdtime > DuringPrinting.HOLD_TIME_THREASHOLD:
+            ht = self.holdtime-DuringPrinting.HOLD_TIME_THREASHOLD
+            if not self.printer.is_starting_up:
+
+                rect_surface = pygame.Surface((rect_w,rect_h), pygame.SRCALPHA) 
+                rect_surface.set_alpha(alpha)  # アルファ（透明度）を設定
+                rect_surface.fill(WHITE)  # 四角形の色を設定
+
+                border_thickness = 20  # 枠線の太さ
+                self.screen.blit(rect_surface, (rect_x,rect_y))
+                pygame.draw.rect(self.screen, RED_A, (rect_x,rect_y,
+                                                    rect_w * (ht/DuringPrinting.HOLD_TIME_MAX),rect_h))
+                pygame.draw.rect(self.screen, ORANGE, (rect_x,rect_y,rect_w,rect_h), border_thickness)
+
+                font = pygame.font.Font(self.font_style, 82)
+                self.screen.blit(self.image_check, (rect_x, rect_y))
+
+                if ht > DuringPrinting.HOLD_TIME_MAX:
+                    print("STOP AND OBSERVE!!!")
 
         # 温度の表示
         self.drawAll()
@@ -259,3 +298,8 @@ class DuringPrinting(Scene):
     def get_elasped_time(self):
         return time.time() - self.timer
 
+    def hold_button(self):
+        self.holdtime+=1
+
+    def release_button(self):
+        self.holdtime = 0

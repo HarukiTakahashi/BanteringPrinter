@@ -104,39 +104,40 @@ class PrintingResult(Scene):
 
         cont_y = 620
 
-        font = pygame.font.Font(self.font_style, 42)
-        text_surface = font.render("Contributors!", True, RED)
-        self.screen.blit(text_surface, (200, cont_y))
+        if self.nfc_res.clf != None:
+            font = pygame.font.Font(self.font_style, 42)
+            text_surface = font.render("Contributors!", True, RED)
+            self.screen.blit(text_surface, (200, cont_y))
 
-        if self.lang == 0:
-            text_surface = font.render("プリントを始めた人 : " + self.stater, True, BLACK)
-        if self.lang == 1:
-            text_surface = font.render("Started by : " + self.stater, True, BLACK)
-        self.screen.blit(text_surface, (250, cont_y+50))        
+            if self.lang == 0:
+                text_surface = font.render("プリントを始めた人 : " + self.stater, True, BLACK)
+            if self.lang == 1:
+                text_surface = font.render("Started by : " + self.stater, True, BLACK)
+            self.screen.blit(text_surface, (250, cont_y+50))        
 
-        if self.lang == 0:
-            text_surface = font.render("応援した人 : ", True, BLACK)
-        if self.lang == 1:
-            text_surface = font.render("Cheered by : ", True, BLACK)
-        self.screen.blit(text_surface, (250, cont_y+100)) 
-        
-        text_intervenor = ""
-        for i,s in enumerate(self.intervenor):
-            text_intervenor = text_intervenor + "" + s
-            if i < len(self.intervenor)-1:
-                text_intervenor += ", "
+            if self.lang == 0:
+                text_surface = font.render("応援した人 : ", True, BLACK)
+            if self.lang == 1:
+                text_surface = font.render("Cheered by : ", True, BLACK)
+            self.screen.blit(text_surface, (250, cont_y+100)) 
+            
+            text_intervenor = ""
+            for i,s in enumerate(self.intervenor):
+                text_intervenor = text_intervenor + "" + s
+                if i < len(self.intervenor)-1:
+                    text_intervenor += ", "
 
-        text_surface = font.render(text_intervenor, True, BLACK)
-        self.screen.blit(text_surface, (300, cont_y+150))        
+            text_surface = font.render(text_intervenor, True, BLACK)
+            self.screen.blit(text_surface, (300, cont_y+150))        
 
-        if self.lang == 0:
-            text_surface = font.render("取り外した人 : " + self.finisher, True, BLACK)
-        if self.lang == 1:
-            text_surface = font.render("Finished by : " + self.finisher, True, BLACK)
-        self.screen.blit(text_surface, (250, cont_y+200))        
+            if self.lang == 0:
+                text_surface = font.render("取り外した人 : " + self.finisher, True, BLACK)
+            if self.lang == 1:
+                text_surface = font.render("Finished by : " + self.finisher, True, BLACK)
+            self.screen.blit(text_surface, (250, cont_y+200))        
 
-        text_surface = font.render("... and You!", True, GREEN)
-        self.screen.blit(text_surface, (300, cont_y+280))        
+            text_surface = font.render("... and You!", True, GREEN)
+            self.screen.blit(text_surface, (300, cont_y+280))        
 
         # 印刷物がない場合はしばらくお待ちください
         c = PrintingResult.EVALUATE_TIME_OUT - (int(time.time()) - self.timeout_timer) 

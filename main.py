@@ -16,7 +16,10 @@ from postSlack import Slack
 printer = None # Printerクラスのインスタンス
 scenes = []
 nfc_read = None
-gcode_folder_path = "./gcode" # Gcodeフォルダのパスを設定
+
+gcode_folder_path = "./gcode_small_tetoris" # Gcodeフォルダのパスを設定
+#gcode_folder_path = "./gcode" # Gcodeフォルダのパスを設定
+
 logger = None
 slack = None
 FPS = 120
@@ -25,6 +28,8 @@ FPS = 120
 # 1: EN
 LANGUAGE = 0
 FONT_STYLE = 'keifont.ttf'
+NFC_ENABLE = False
+SLACK_ENABLE = False
 
 # Slack token
 SLACK_TOKEN = ''
@@ -140,6 +145,7 @@ def main():
     
     # Slackポスト用クラスのインスタンス化
     slack = Slack(SLACK_TOKEN, SLACK_CHANNEL,SLACK_MEMBER_ID)
+    slack.enable(SLACK_ENABLE)
     
     # 画像の読み込み
     icon = pygame.image.load("image/icons.png")
@@ -163,6 +169,7 @@ def main():
     s_during = DuringPrinting(screen)
     scenes.append(s_during)
     s_during.set_image_button(pygame.image.load("image/button.png"))
+    s_during.set_image_check_man(pygame.image.load("image/check_man.png"))
     s_during.set_image_nozzle(noz)
     s_during.set_image_bed(bed)
     
@@ -214,28 +221,47 @@ def main():
 
     #printer.close_serial()
 
+    # 長押しの判定時間（秒）
+    hold_threshold = 0.5
+    mouse_pressed_time = 0  # マウスが押された時刻
+    pressed = False
+    
     # プログラムのメイン関数
     while True:
         
-        pressed = False
+
         clicked = False
-        
 
         # マウス、キーボードなどの入力処理
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
             elif (event.type == pygame.MOUSEBUTTONDOWN): # and not selected:
-                clicked = True
+                # clicked = True
+                mouse_pressed_time = time.time()  # 現在の時間を記録
+                pressed = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                # ボタンが押されてから離すまでの時間を計算
+                hold_time = time.time() - mouse_pressed_time
+                if hold_time >= hold_threshold:
+                    print("Long hold detected")
+                    pressed = False
+                else:
+                    clicked = True
+                    pressed = False
+                
+                # 状態をリセット
+                mouse_pressed_time = 0
+                
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_l: 
                 LANGUAGE = 1 - LANGUAGE
                 nfc_read.set_lang(LANGUAGE)
                 for s in scenes:
                     s.set_lang(LANGUAGE)
                         
-        mouse_buttons = pygame.mouse.get_pressed()
-        if mouse_buttons[0]:
-            pressed = True
+        #mouse_buttons = pygame.mouse.get_pressed()
+        #if mouse_buttons[0]:
+        #    pressed = True
 
         if scene_stat == 0:
             # 造形前の状態
@@ -258,6 +284,7 @@ def main():
                 log_message(task_logger, 'Print start,' + fname)
                 s_result.set_starter(nfc_read.id_str)
 
+
                 # Slackにポスト
                 slack.post(":bulb: 造形開始！\n"+fname)
                 
@@ -269,7 +296,7 @@ def main():
 
                 s_before.printer.change_feedrate(50)
                 s_during.set_gcode_file_name(fname)
-                printer.open_gcode_file("gcode/" + fname)
+                printer.open_gcode_file(gcode_folder_path+"/" + fname)
                 printer.start_printing()
  
                 s_before.setIndexOfFile(ind)
@@ -277,11 +304,11 @@ def main():
                 s_after.setIndexOfFile(ind)
 
                 # 1だよ
-                scene_stat = 2
+                scene_stat = 1
 
         # 造形中の状態======================================================================
         elif scene_stat == 1:
-                    
+        
             s_during.draw()
 
             if not printer.serial.is_open:
@@ -311,6 +338,11 @@ def main():
                 s_result.set_intervenor(nfc_read.id_str)
 
                 s_during.press()
+
+            if pressed: 
+                s_during.hold_button()
+            else:
+                s_during.release_button()
         
         elif scene_stat == 2:
             # 造形後の状態

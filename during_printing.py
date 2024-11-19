@@ -277,7 +277,7 @@ class DuringPrinting(Scene):
         self.drawAll()
         self.drawGrid()
 
-        pygame.display.flip()
+        #pygame.display.flip()
 
     def is_printing(self):
         return self.printer.is_printing()

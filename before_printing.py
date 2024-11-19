@@ -169,7 +169,7 @@ class BeforePrinting(Scene):
         # 画面の更新        
         self.drawAll()
         self.drawGrid()
-        pygame.display.flip()
+        #pygame.display.flip()
         
     # ルーレット停止処理
     def stop(self):

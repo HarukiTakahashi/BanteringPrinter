@@ -261,7 +261,7 @@ class AfterPrinting(Scene):
 
         self.drawAll()
         self.drawGrid()
-        pygame.display.flip()
+        #pygame.display.flip()
 
 
     def set_image(self, img: list):

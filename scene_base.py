@@ -65,7 +65,7 @@ class Scene():
         self.drawProcess()
         self.drawWanring()
 
-        pygame.display.flip()
+        #pygame.display.flip()
 
     # プリンタの温度について表示
     def drawTemperature(self):

@@ -10,6 +10,10 @@ from before_printing import BeforePrinting
 from during_printing import DuringPrinting
 from after_printing import AfterPrinting
 from printing_result import PrintingResult
+
+from scrollable import Scrollable
+
+
 from nfc_read import NFCReading
 from postSlack import Slack
 
@@ -85,7 +89,7 @@ def log_message(logger, message=""):
 
 # 初期化
 def init():
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '0,80'
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '1920,80'
 
 # メイン関数 ========================================================================
 def main():
@@ -226,9 +230,15 @@ def main():
     mouse_pressed_time = 0  # マウスが押された時刻
     pressed = False
     
+    
+    # 新機能実験 =============================
+    sss = Scrollable(screen,(100,100),(500,500))
+    
+    # ========================================
+    
+    
     # プログラムのメイン関数
     while True:
-        
 
         clicked = False
 
@@ -405,7 +415,22 @@ def main():
                 s_result.hold_button()
             else:
                 s_result.release_button()
+                
+                
+        sss.draw()
+        sss.move()
         
+        if clicked:
+            if (not sss.forwarding) and (not sss.is_at_end):
+                print("go!")
+                sss.go_forward()
+            else:
+                print("back!")
+                sss.go_backward()            
+        
+        pygame.display.update()
+        
+        # メインループここまで
 
 if __name__ == "__main__":
     try:

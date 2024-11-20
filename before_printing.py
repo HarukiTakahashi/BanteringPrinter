@@ -144,7 +144,6 @@ class BeforePrinting(Scene):
             bubble_padding = 20
             bubble_rect = pygame.Rect((x,y), (text_rect.width + 2 * bubble_padding, text_rect.height + 2 * bubble_padding))
 
-
             thickness = 5
 
             # 吹き出しの本体部分
@@ -164,12 +163,12 @@ class BeforePrinting(Scene):
             text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
             self.screen.blit(text_surface, text_position)
 
-
+            pygame.display.update()
 
         # 画面の更新        
         self.drawAll()
         self.drawGrid()
-        #pygame.display.flip()
+
         
     # ルーレット停止処理
     def stop(self):

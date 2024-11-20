@@ -272,12 +272,12 @@ class DuringPrinting(Scene):
 
                 if ht > DuringPrinting.HOLD_TIME_MAX:
                     print("STOP AND OBSERVE!!!")
-
+        
+                pygame.display.update()
+                
         # 温度の表示
         self.drawAll()
         self.drawGrid()
-
-        #pygame.display.flip()
 
     def is_printing(self):
         return self.printer.is_printing()

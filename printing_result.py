@@ -184,11 +184,11 @@ class PrintingResult(Scene):
             text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
             self.screen.blit(text_surface, text_position)
 
-
+            pygame.display.update()
 
         self.drawAll()
         self.drawGrid()
-        #pygame.display.flip()
+
 
 
     def press(self):

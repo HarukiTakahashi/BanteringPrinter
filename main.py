@@ -432,13 +432,8 @@ def main():
                 
                 
         sss.draw()
+        sss.control(key_input_once)
         sss.move()
-        
-        if key_input_once.get(pygame.K_DOWN):
-            if (not sss.forwarding) and (not sss.is_at_end):
-                sss.go_forward()
-            else:
-                sss.go_backward()       
         
         # 単発押しキーの状態をすべてリセット
         for key in key_input_once.keys():

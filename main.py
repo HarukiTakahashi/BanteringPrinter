@@ -11,7 +11,7 @@ from during_printing import DuringPrinting
 from after_printing import AfterPrinting
 from printing_result import PrintingResult
 
-from scrollable import Scrollable
+from scrollable_next_editor import NextEditor
 
 
 from nfc_read import NFCReading
@@ -20,6 +20,8 @@ from postSlack import Slack
 printer = None # Printerクラスのインスタンス
 scenes = []
 nfc_read = None
+key_input = {}
+key_input_once = {}
 
 gcode_folder_path = "./gcode_small_tetoris" # Gcodeフォルダのパスを設定
 #gcode_folder_path = "./gcode" # Gcodeフォルダのパスを設定
@@ -232,7 +234,8 @@ def main():
     
     
     # 新機能実験 =============================
-    sss = Scrollable(screen,(100,100),(500,500))
+    sss = NextEditor(screen,(width,200),(width-300,200),(300,800))
+    sss.set_font(FONT_STYLE)
     
     # ========================================
     
@@ -268,6 +271,17 @@ def main():
                 nfc_read.set_lang(LANGUAGE)
                 for s in scenes:
                     s.set_lang(LANGUAGE)
+
+            # KEYDOWN: キーを押したとき
+            if event.type == pygame.KEYDOWN:
+                key_input[event.key] = True
+                # 押した瞬間の処理用フラグを立てる
+                key_input_once[event.key] = True
+
+            # KEYUP: キーを離したとき
+            if event.type == pygame.KEYUP:
+                key_input[event.key] = False
+                key_input_once[event.key] = False  # フラグをリセット
                         
         #mouse_buttons = pygame.mouse.get_pressed()
         #if mouse_buttons[0]:
@@ -420,14 +434,16 @@ def main():
         sss.draw()
         sss.move()
         
-        if clicked:
+        if key_input_once.get(pygame.K_DOWN):
             if (not sss.forwarding) and (not sss.is_at_end):
-                print("go!")
                 sss.go_forward()
             else:
-                print("back!")
-                sss.go_backward()            
+                sss.go_backward()       
         
+        # 単発押しキーの状態をすべてリセット
+        for key in key_input_once.keys():
+            key_input_once[key] = False
+
         pygame.display.update()
         
         # メインループここまで

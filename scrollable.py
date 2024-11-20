@@ -20,6 +20,9 @@ class Scrollable():
         self.is_at_start = True
         self.is_at_end = False
 
+    def set_font(self, s: str):
+        self.font_style = s
+        
     def draw(self):
         pygame.draw.rect(self.screen, (255,0,0), [self.pos_x , self.pos_y, self.size[0],self.size[1]], 0)  # 線の太さ0は塗りつぶし
 

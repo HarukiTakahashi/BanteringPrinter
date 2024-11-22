@@ -272,16 +272,16 @@ def main():
                 for s in scenes:
                     s.set_lang(LANGUAGE)
 
-            # KEYDOWN: キーを押したとき
-            if event.type == pygame.KEYDOWN:
-                key_input[event.key] = True
-                # 押した瞬間の処理用フラグを立てる
-                key_input_once[event.key] = True
-
             # KEYUP: キーを離したとき
             if event.type == pygame.KEYUP:
                 key_input[event.key] = False
                 key_input_once[event.key] = False  # フラグをリセット
+            if event.type == pygame.KEYDOWN:
+                # KEYDOWN: キーを押したとき
+                key_input[event.key] = True
+                # 押した瞬間の処理用フラグを立てる
+                key_input_once[event.key] = True
+                sss.control(key_input_once)
                         
         #mouse_buttons = pygame.mouse.get_pressed()
         #if mouse_buttons[0]:
@@ -431,13 +431,14 @@ def main():
                 s_result.release_button()
                 
                 
-        sss.draw()
-        sss.control(key_input_once)
+        #sss.control(key_input_once)
         sss.move()
+        sss.draw()
         
         # 単発押しキーの状態をすべてリセット
         for key in key_input_once.keys():
             key_input_once[key] = False
+
 
         pygame.display.update()
         

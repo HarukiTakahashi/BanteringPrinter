@@ -94,12 +94,12 @@ class AfterPrinting(Scene):
         else:
             if self.mes_flag == 0:
                 if self.lang == 0:
-                    text_surface = font.render("冷却完了！印刷物の取り外しにご協力ください！", True, BLUE)
+                    text_surface = font.render("冷却完了！造形物の取り外しにご協力ください！", True, BLUE)
                 elif self.lang == 1:
                     text_surface = font.render("Completed! Help us remove the object!", True, BLUE)
             else:
                 if self.lang == 0:
-                    text_surface = font.render("印刷物を回収したらボタンを押してください！", True, BLUE)
+                    text_surface = font.render("造形物を回収したらボタンを押してください！", True, BLUE)
                 elif self.lang == 1:
                     text_surface = font.render("Press the button after collecting the object.", True, BLUE)
             self.screen.blit(text_surface, (200, img_position[1]-100))
@@ -149,13 +149,13 @@ class AfterPrinting(Scene):
 
         # 真ん中のメッセージ
         if self.lang == 0:
-            text_surface = font.render("プリントされた印刷物を取ってください。", True, color)
+            text_surface = font.render("プリントされた造形物を取ってください。", True, color)
         elif self.lang == 1:
             text_surface = font.render("Remove the printed object from the bed.", True, color)
         self.screen.blit(text_surface, (img_position[0], img_position[1] + img_size+60))
 
         if self.lang == 0:
-            text_surface = font.render("印刷物は差し上げます。", True, RED)
+            text_surface = font.render("造形物は差し上げます。", True, RED)
         elif self.lang == 1:
             text_surface = font.render("You can take it.", True, RED)
         self.screen.blit(text_surface, (img_position[0], img_position[1] + img_size+100))
@@ -258,12 +258,13 @@ class AfterPrinting(Scene):
             text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
             self.screen.blit(text_surface, text_position)
 
+            self.drawAll()
+            self.drawGrid()
             pygame.display.update()
+                
 
         self.drawAll()
         self.drawGrid()
-        
-
 
     def set_image(self, img: list):
         self.remove_images = img

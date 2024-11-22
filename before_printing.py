@@ -163,12 +163,13 @@ class BeforePrinting(Scene):
             text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
             self.screen.blit(text_surface, text_position)
 
+            self.drawAll()
+            self.drawGrid()
             pygame.display.update()
 
         # 画面の更新        
         self.drawAll()
         self.drawGrid()
-
         
     # ルーレット停止処理
     def stop(self):

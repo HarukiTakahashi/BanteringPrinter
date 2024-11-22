@@ -65,7 +65,7 @@ class PrintingResult(Scene):
         font = pygame.font.Font(self.font_style, 82)
         
         if self.lang == 0:
-            text_surface = font.render("プリントした印刷物の出来はいかがですか?", True, color)
+            text_surface = font.render("プリントしたものの出来はいかがですか?", True, color)
         elif self.lang == 1:
             text_surface = font.render("How does the printed object look?", True, color)
         self.screen.blit(text_surface, (150, 150))
@@ -145,7 +145,7 @@ class PrintingResult(Scene):
             c = 0
         font = pygame.font.Font(self.font_style, 20)
         if self.lang == 0:
-            text_surface = font.render("印刷物がない場合はしばらくお待ちください（" + str(c) + ")", True, BLACK)
+            text_surface = font.render("造形物がない場合はしばらくお待ちください（" + str(c) + ")", True, BLACK)
         elif self.lang == 1:
             text_surface = font.render("Wait a moment if there is no printed object.（" + str(c) + ")", True, BLACK)
         self.screen.blit(text_surface, (width//2 + 350, rect_y-30))    
@@ -184,11 +184,13 @@ class PrintingResult(Scene):
             text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
             self.screen.blit(text_surface, text_position)
 
+            self.drawAll()
+            self.drawGrid()
             pygame.display.update()
+                
 
         self.drawAll()
         self.drawGrid()
-
 
 
     def press(self):

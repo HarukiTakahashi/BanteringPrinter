@@ -2,7 +2,7 @@ import pygame
 
 class TetrisEdit():
 
-    def __init__(self, s, grid_num_x=4, grid_num_y=4,grid_size = 50):
+    def __init__(self, s, grid_num_x=4, grid_num_y=3,grid_size = 50):
         self.screen = s
 
         self.grid_num_x = grid_num_x
@@ -25,7 +25,7 @@ class TetrisEdit():
             for col in range(self.grid_num_x):
                 x = ox + col * self.grid_size 
                 y = oy + row * self.grid_size 
-                if self.grid[row][col] == 1:
+                if self.grid[col][row] == 1:
                     pygame.draw.rect(self.screen, RED, (x, y, self.grid_size, self.grid_size))
                 else:
                     pygame.draw.rect(self.screen, GRAY, (x, y, self.grid_size, self.grid_size))
@@ -35,7 +35,7 @@ class TetrisEdit():
     def toggle(self, pos):
         x = pos[0]
         y = pos[1]
-        self.grid[y][x] = 1 - self.grid[y][x]
+        self.grid[x][y] = 1 - self.grid[x][y]
 
     
     

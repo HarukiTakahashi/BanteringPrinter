@@ -37,8 +37,10 @@ class NextEditor(Scrollable):
                 
         if self.is_at_end:
             if keys.get(pygame.K_LEFT):
+                print("left")
                 self.move_cursor(-1)
             if keys.get(pygame.K_RIGHT):
+                print("right")
                 self.move_cursor(1)   
                 
             next_tetris = self.next_list[self.current_next]

@@ -30,8 +30,8 @@ class Slack:
                 channel=self.SLACK_CHANNEL,
                 text=m
             )
-        except SlackApiError as e:
-            print(f"Slack API Error: {e.response['error']}")
+        except Exception as e:
+            print("Slack post error")
 
     def enable(self, b):
         self.ENABLE = b

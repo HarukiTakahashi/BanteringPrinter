@@ -56,15 +56,15 @@ class NextEditor(Scrollable):
                             next_tetris.making()
 
     def draw(self):
-        text = "NEXT"
-        font = pygame.font.Font(self.font_style, 58)
-        line_spacing = 60
         BLACK = (0,0,0)
         WHITE=(255,255,255)
         LIGHT_YELLOW = (255,255,200)
         RED = (255,0,0)
         BLUE = (0,0,255)
-    
+        
+        text = "NEXT"
+        font = pygame.font.Font(self.font_style, 58)
+        line_spacing = 60
         pygame.draw.rect(self.screen, LIGHT_YELLOW, [self.pos_x , self.pos_y, self.size[0],self.size[1]], 0)  # 線の太さ0は塗りつぶし
         pygame.draw.rect(self.screen, BLACK, [self.pos_x , self.pos_y, self.size[0],self.size[1]], 5)  # 線の太さ0は塗りつぶし
 
@@ -83,8 +83,23 @@ class NextEditor(Scrollable):
             if self.current_next == i:
                 pygame.draw.rect(self.screen, RED, [x,y,te.grid_size*te.grid_num_x,te.grid_size*te.grid_num_y], 5)
 
+        text = "! Experimental !"
+        font = pygame.font.Font(self.font_style, 36)
+        text_surface = font.render(text, True, BLACK)  # 文字を描画
+        text_rect = text_surface.get_rect(topleft=(self.pos_x+10, self.pos_y+self.size[1]-60))  # 各文字の位置
+        self.screen.blit(text_surface, text_rect)
+
     def move_cursor(self, dir: int):
         self.current_next = (self.current_next + dir) % self.candidate
         if self.current_next < 0:
             self.current_next = self.candidate-1
+        
+        
+    def remove(self):
+        self.next_list.pop(0)
+        t = TetrisEdit(self.screen,0)
+        self.next_list.append(t)
+
+        for i in range(self.candidate):
+            self.next_list.num = i
         

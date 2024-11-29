@@ -217,6 +217,6 @@ class TetrisEdit():
     
     
     def slicing(self):
-        cmd = ".curaengine\\CuraEngine.exe slice -j C:\\Users\\Haruki\\Documents\\GitHub\\BanteringPrinter\\.curaengine\\kingroon_kp3s_batering.def.json -o M_S\\output_" +str(self.num)+".gcode"
+        cmd = ".curaengine\\CuraEngine.exe slice -j .curaengine\\kingroon_kp3s_batering.def.json -o M_S\\output_" +str(self.num)+".gcode"
         cmd +=  " -l C:\\Users\\Haruki\\Documents\\GitHub\\BanteringPrinter\\M_S\\output_" +str(self.num)+".stl -s roofing_layer_count=1"
         subprocess.call(cmd.split())

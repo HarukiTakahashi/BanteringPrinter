@@ -19,6 +19,7 @@ class TetrisEdit():
         WHITE=(255,255,255)
         LIGHT_YELLOW = (255,255,100)
         RED = (255,0,0)
+        LIGHT_BLUE = (150,150,255)
         
     # 配列に基づいてグリッドを描画
         for row in range(self.grid_num_y):
@@ -26,7 +27,7 @@ class TetrisEdit():
                 x = ox + col * self.grid_size 
                 y = oy + row * self.grid_size 
                 if self.grid[col][row] == 1:
-                    pygame.draw.rect(self.screen, RED, (x, y, self.grid_size, self.grid_size))
+                    pygame.draw.rect(self.screen, LIGHT_BLUE, (x, y, self.grid_size, self.grid_size))
                 else:
                     pygame.draw.rect(self.screen, GRAY, (x, y, self.grid_size, self.grid_size))
                 pygame.draw.rect(self.screen, BLACK, (x, y, self.grid_size, self.grid_size), 1)  # グリッド線

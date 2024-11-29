@@ -57,6 +57,7 @@ class NextEditor(Scrollable):
         WHITE=(255,255,255)
         LIGHT_YELLOW = (255,255,200)
         RED = (255,0,0)
+        BLUE = (0,0,255)
     
         pygame.draw.rect(self.screen, LIGHT_YELLOW, [self.pos_x , self.pos_y, self.size[0],self.size[1]], 0)  # 線の太さ0は塗りつぶし
         pygame.draw.rect(self.screen, BLACK, [self.pos_x , self.pos_y, self.size[0],self.size[1]], 5)  # 線の太さ0は塗りつぶし

@@ -1,10 +1,11 @@
 import os, sys
 import pygame
+
+import json
 import random
 import time
 from scrollable import Scrollable
 from tetris_edit import TetrisEdit
-
 
 # class for making a scollable object
 # this class is supposed to be inherited
@@ -16,16 +17,16 @@ class NextEditor(Scrollable):
         pygame.K_a: (0,2), pygame.K_s: (1,2), pygame.K_d: (2,2), pygame.K_f: (3,2), pygame.K_g: (4,2), pygame.K_h: (5,2),
         pygame.K_z: (0,3), pygame.K_x: (1,3), pygame.K_c: (2,3), pygame.K_v: (3,3), pygame.K_b: (4,3), pygame.K_n: (5,3),                        
     }
-
+    
     def __init__(self, screen, pos_start:tuple,pos_end:tuple, size=(100,100),candidate = 3):
         super().__init__(screen, pos_start,pos_end,size)
         
         self.candidate = candidate
         self.next_list = []
-        self.current_next = 0
+        self.current_next = 0      
         
         for i in range(candidate):
-            t = TetrisEdit(self.screen)
+            t = TetrisEdit(self.screen,i)
             self.next_list.append(t)
 
     def control(self, keys):
@@ -48,6 +49,11 @@ class NextEditor(Scrollable):
                 if keys.get(key):  # キーが押されていれば
                     if row < next_tetris.grid_num_x and col < next_tetris.grid_num_y:
                         next_tetris.toggle((row,col))
+                        
+                        print("検証するよ！！")
+                        #print(next_tetris.validate())
+                        if next_tetris.validate():
+                            next_tetris.making()
 
     def draw(self):
         text = "NEXT"

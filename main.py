@@ -234,8 +234,8 @@ def main():
     
     
     # 新機能実験 =============================
-    sss = NextEditor(screen,(width,200),(width-300,200),(300,800))
-    sss.set_font(FONT_STYLE)
+    next_tetris_editor = NextEditor(screen,(width,200),(width-300,200),(300,800))
+    next_tetris_editor.set_font(FONT_STYLE)
     
     # ========================================
     
@@ -281,7 +281,7 @@ def main():
                 key_input[event.key] = True
                 # 押した瞬間の処理用フラグを立てる
                 key_input_once[event.key] = True
-                sss.control(key_input_once)
+                next_tetris_editor.control(key_input_once)
                         
         #mouse_buttons = pygame.mouse.get_pressed()
         #if mouse_buttons[0]:
@@ -301,31 +301,66 @@ def main():
                 task_file = 'log/' + d + ".log"
                 task_logger = setup_logger(task_file)
 
-                # シーン切り替えと造形開始前の処理
-                fname, ind = s_before.get_file()
+                # NEXTブロックの処理 =========================
+                if next_tetris_editor.next_list[0].gcode_file is not None:
 
-                # ログは可能な限り早く残す
-                log_message(task_logger, 'Print start,' + fname)
-                s_result.set_starter(nfc_read.id_str)
+                    next_b = next_tetris_editor.next_list[0]
+                    # 造形データ取得
+                    fname = next_b.get_gcode_path()
+                    
+
+                    # ログは可能な限り早く残す
+                    log_message(task_logger, 'Print start,' + fname)
+                    print(fname,"を印刷するよ！")
+                    s_result.set_starter(nfc_read.id_str)
+
+                    # Slackにポスト
+                    slack.post(":bulb: 造形開始！\n"+fname)
+                    
+                    # クリックされた
+                    sound_fx_pa.play()
+                    next_tetris_editor.draw()
+                    # ここで処理が一時停止するのでログは事前にのこす
+                    s_before.stop()
+
+                    s_before.printer.change_feedrate(50)
+                    s_during.set_gcode_file_name("NEXT")
+                    printer.open_gcode_file(fname)
+                    printer.start_printing()
+    
+                    s_before.setIndexOfFile(0)
+                    s_during.setIndexOfFile(0)
+                    s_after.setIndexOfFile(0)
+                    print("next block の造形")
+                    next_tetris_editor.remove()
+
+                else:
+                                        # シーン切り替えと造形開始前の処理
+                    fname, ind = s_before.get_file()
+
+                    # ログは可能な限り早く残す
+                    log_message(task_logger, 'Print start,' + fname)
+                    s_result.set_starter(nfc_read.id_str)
 
 
-                # Slackにポスト
-                slack.post(":bulb: 造形開始！\n"+fname)
-                
-                # クリックされた
-                sound_fx_pa.play()
+                    # Slackにポスト
+                    slack.post(":bulb: 造形開始！\n"+fname)
+                    
+                    # クリックされた
+                    sound_fx_pa.play()
 
-                # ここで処理が一時停止するのでログは事前にのこす
-                s_before.stop()
+                    # ここで処理が一時停止するのでログは事前にのこす
+                    s_before.stop()
 
-                s_before.printer.change_feedrate(50)
-                s_during.set_gcode_file_name(fname)
-                printer.open_gcode_file(gcode_folder_path+"/" + fname)
-                printer.start_printing()
- 
-                s_before.setIndexOfFile(ind)
-                s_during.setIndexOfFile(ind)
-                s_after.setIndexOfFile(ind)
+                    s_before.printer.change_feedrate(50)
+                    s_during.set_gcode_file_name(fname)
+                    printer.open_gcode_file(gcode_folder_path+"/" + fname)
+                    printer.start_printing()
+    
+                    s_before.setIndexOfFile(ind)
+                    s_during.setIndexOfFile(ind)
+                    s_after.setIndexOfFile(ind)
+                    
 
                 # 1だよ
                 scene_stat = 1
@@ -431,9 +466,8 @@ def main():
                 s_result.release_button()
                 
                 
-        #sss.control(key_input_once)
-        sss.move()
-        sss.draw()
+        next_tetris_editor.move()
+        next_tetris_editor.draw()
         
         # 単発押しキーの状態をすべてリセット
         for key in key_input_once.keys():

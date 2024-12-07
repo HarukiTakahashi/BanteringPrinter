@@ -6,6 +6,7 @@ import compute_rhino3d.Mesh as mesh
 import rhino3dm
 import threading
 import json
+import os
 
 class TetrisEdit():
     
@@ -18,17 +19,22 @@ class TetrisEdit():
         self.grid_num_x = grid_num_x
         self.grid_num_y = grid_num_y
         self.is_making = False
+        self.is_valid = False
 
         self.grid_size = grid_size
+        self.gcode_file = None
 
         self.grid = [[0] * grid_num_y for _ in range(grid_num_x)]
 
     def draw(self, ox, oy):
         GRAY = (200,200,200)
+        DARK_GRAY = (100,100,100)
         BLACK = (0,0,0)
         WHITE=(255,255,255)
         LIGHT_YELLOW = (255,255,100)
         RED = (255,0,0)
+        GREEN = (0,255,0)
+        BLUE = (0,0,255)
         LIGHT_BLUE = (150,150,255)
         
     # 配列に基づいてグリッドを描画
@@ -37,12 +43,31 @@ class TetrisEdit():
                 x = ox + col * self.grid_size 
                 y = oy + row * self.grid_size 
                 if self.grid[col][row] == 1:
-                    pygame.draw.rect(self.screen, LIGHT_BLUE, (x, y, self.grid_size, self.grid_size))
+                    if self.is_valid:
+                        pygame.draw.rect(self.screen, LIGHT_BLUE, (x, y, self.grid_size, self.grid_size))
+                    else:
+                        pygame.draw.rect(self.screen, DARK_GRAY, (x, y, self.grid_size, self.grid_size))
                 else:
                     pygame.draw.rect(self.screen, GRAY, (x, y, self.grid_size, self.grid_size))
                 pygame.draw.rect(self.screen, BLACK, (x, y, self.grid_size, self.grid_size), 1)  # グリッド線
 
+        if not self.is_valid:
+            text = " ✕ "
+            font = pygame.font.Font(self.font_style, 128)
+            text_surface = font.render(text, True, RED)  # 文字を描画
+            text_rect = text_surface.get_rect(center=(ox+(self.grid_num_x*self.grid_size)/2,oy+(self.grid_num_y*self.grid_size)/2))  # 各文字の位置
+            self.screen.blit(text_surface, text_rect)
+
+        if self.gcode_file is not None:
+            text = " Ready "
+            font = pygame.font.Font(self.font_style, 24)
+            text_surface = font.render(text, True, BLUE)  # 文字を描画
+            text_rect = text_surface.get_rect(center=(ox+(self.grid_num_x*self.grid_size)/2,oy+(self.grid_num_y*self.grid_size)/2))  # 各文字の位置
+            self.screen.blit(text_surface, text_rect)
+
+
     def validate(self):
+        self.is_valid = False
         if self.is_all_zero():
             # print("全部0です")
             return False           
@@ -51,14 +76,16 @@ class TetrisEdit():
             return False     
         if self.check_zero_islands():
             #print("0の島が1つ以上あるよ")
-            return False     
-        
+            return False    
+
+        self.is_valid = True
         return True
 
     def toggle(self, pos):
         x = pos[0]
         y = pos[1]
         self.grid[x][y] = 1 - self.grid[x][y]
+        self.gcode_file = None
 
     
     # すべて0かどうかチェックする関数
@@ -133,6 +160,7 @@ class TetrisEdit():
     
     # ============================================================
     def making(self):
+
         if not self.is_making:
             print("処理開始するよ")
             thread_a = threading.Thread(target=self.process)
@@ -146,6 +174,7 @@ class TetrisEdit():
         print("スライスするよ")
         self.slicing()
         self.is_making = False
+        self.gcode_file = "./M_S/output_" +str(self.num)+".gcode"
 
     def save_mesh_as_stl(self, mesh, file_path="test.stl"):
         """
@@ -218,5 +247,12 @@ class TetrisEdit():
     
     def slicing(self):
         cmd = ".curaengine\\CuraEngine.exe slice -j .curaengine\\kingroon_kp3s_batering.def.json -o M_S\\output_" +str(self.num)+".gcode"
-        cmd +=  " -l C:\\Users\\Haruki\\Documents\\GitHub\\BanteringPrinter\\M_S\\output_" +str(self.num)+".stl -s roofing_layer_count=1"
+        cmd +=  " -l "+os.getcwd()+"\\M_S\\output_" +str(self.num)+".stl -s roofing_layer_count=1"
         subprocess.call(cmd.split())
+        
+    def set_font(self, s: str):
+        self.font_style = s
+        
+        
+    def get_gcode_path(self):
+        return self.gcode_file

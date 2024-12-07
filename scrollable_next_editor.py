@@ -54,7 +54,10 @@ class NextEditor(Scrollable):
                         #print(next_tetris.validate())
                         if next_tetris.validate():
                             next_tetris.making()
-
+            if keys.get(pygame.K_RETURN):
+                print("remove")
+                self.remove()
+                
     def draw(self):
         BLACK = (0,0,0)
         WHITE=(255,255,255)
@@ -96,10 +99,17 @@ class NextEditor(Scrollable):
         
         
     def remove(self):
-        self.next_list.pop(0)
         t = TetrisEdit(self.screen,0)
+        t.set_font(self.font_style)
         self.next_list.append(t)
+        
+        self.next_list.pop(0)
 
         for i in range(self.candidate):
-            self.next_list.num = i
+            self.next_list[i].num = i
+
         
+    def set_font(self, s: str):
+        self.font_style = s
+        for i in range(self.candidate):
+            self.next_list[i].set_font(s)

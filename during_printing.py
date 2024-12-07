@@ -243,7 +243,9 @@ class DuringPrinting(Scene):
         rect_y = 200
 
         #print(self.images[self.selected_index])
-        img = self.images[self.selected_index]
+        if self.selected_index != -1:
+            img = self.images[self.selected_index]
+
         self.screen.blit(img, (rect_x, rect_y))
 
         # チェックおじさん描画
@@ -277,7 +279,7 @@ class DuringPrinting(Scene):
         # 温度の表示
         self.drawAll()
         self.drawGrid()
-        pygame.display.update()
+        #pygame.display.update()
 
     def is_printing(self):
         return self.printer.is_printing()

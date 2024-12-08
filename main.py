@@ -305,7 +305,7 @@ def main():
                 task_logger = setup_logger(task_file)
 
                 # NEXTブロックの処理 =========================
-                if next_tetris_editor.is_at_end and next_tetris_editor.next_list[0].gcode_file is not None:
+                if next_tetris_editor.is_at_end and (next_tetris_editor.next_list[0].gcode_file is not None):
 
                     next_b = next_tetris_editor.next_list[0]
                     # 造形データ取得

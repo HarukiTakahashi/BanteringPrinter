@@ -199,7 +199,7 @@ class Scene():
                 if i == 0:
                     te = "開始"
                 if i == 1:
-                    te = "印刷"
+                    te = "造形"
                 if i == 2:
                     te = "取外"
                 if i == 3:

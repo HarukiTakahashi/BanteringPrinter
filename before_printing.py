@@ -119,62 +119,140 @@ class BeforePrinting(Scene):
         self.screen.blit(self.image_button, (width-150, height-250))
         """
 
-        # ルーレットストップ時
-        if not self.roulette_active:
-
-            # 色の定義
-            BLACK = (0, 0, 0)
-            BUBBLE_COLOR = (230, 230, 100)  # 吹き出しの色
-
-            # フォントの設定
-            font_size = 120
-            font_jp = pygame.font.SysFont("ipaexg.ttf", font_size)
-
-            # 吹き出しのテキスト
-            text = " Print this! "
-
-            text_surface = font_jp.render(text, True, BLACK)
-            text_rect = text_surface.get_rect()
-
-            row = self.highlight_index // images_per_row
-            col = self.highlight_index % images_per_row
-            x = start_x + col * (image_size + margin) - image_size // 2
-            y = start_y + row * (image_size + margin) - image_size / 2 - 20
-
-            bubble_padding = 20
-            bubble_rect = pygame.Rect((x,y), (text_rect.width + 2 * bubble_padding, text_rect.height + 2 * bubble_padding))
-
-            thickness = 5
-
-            # 吹き出しの本体部分
-            pygame.draw.rect(self.screen, BUBBLE_COLOR, bubble_rect)
-            #pygame.draw.rect(self.screen, BUBBLE_COLOR, bubble_rect,thickness)
-
-            # 吹き出しの三角形の部分
-            triangle_points = [
-                (bubble_rect.centerx, bubble_rect.bottom+50),  # 三角形の先端
-                (bubble_rect.centerx - 30, bubble_rect.bottom),  # 左の点
-                (bubble_rect.centerx + 30, bubble_rect.bottom)  # 右の点
-            ]
-            pygame.draw.polygon(self.screen, BUBBLE_COLOR, triangle_points)
-            #pygame.draw.polygon(self.screen, BUBBLE_COLOR, triangle_points,thickness)
-            
-            # テキストを吹き出しの中に描画
-            text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
-            self.screen.blit(text_surface, text_position)
-
-            self.drawAll()
-            self.drawGrid()
-            pygame.display.update()
-
         # 画面の更新        
         self.drawAll()
         self.drawGrid()
         
+    def stop_draw(self):
+        items_num = len(self.gcode_file)
+        
+        # 画面サイズ
+        width = self.screen.get_width()
+        height = self.screen.get_height()
+        images_per_row = BeforePrinting.item_num_line
+        image_size = BeforePrinting.item_size
+        margin = BeforePrinting.margin
+
+        # グリッドのサイズを計算
+        num_rows = (items_num + images_per_row - 1) // images_per_row
+        grid_width = min(images_per_row, items_num) * (image_size + margin) - margin
+        grid_height = num_rows * (image_size + margin) - margin
+
+        # グリッドの左上の位置を計算（中央揃え）
+        start_x = (width - grid_width) // 2
+        start_y = (height - grid_height) // 2
+    
+        # 色の定義
+        BLACK = (0, 0, 0)
+        BUBBLE_COLOR = (230, 230, 100)  # 吹き出しの色
+
+        # フォントの設定
+        font_size = 120
+        font_jp = pygame.font.SysFont("ipaexg.ttf", font_size)
+
+        # 吹き出しのテキスト
+        text = " Print this! "
+
+        text_surface = font_jp.render(text, True, BLACK)
+        text_rect = text_surface.get_rect()
+
+        row = self.highlight_index // images_per_row
+        col = self.highlight_index % images_per_row
+        x = start_x + col * (image_size + margin) - image_size // 2
+        y = start_y + row * (image_size + margin) - image_size / 2 - 20
+
+        bubble_padding = 20
+        bubble_rect = pygame.Rect((x,y), (text_rect.width + 2 * bubble_padding, text_rect.height + 2 * bubble_padding))
+
+        # 吹き出しの本体部分
+        pygame.draw.rect(self.screen, BUBBLE_COLOR, bubble_rect)
+        #pygame.draw.rect(self.screen, BUBBLE_COLOR, bubble_rect,thickness)
+
+        # 吹き出しの三角形の部分
+        triangle_points = [
+            (bubble_rect.centerx, bubble_rect.bottom+50),  # 三角形の先端
+            (bubble_rect.centerx - 30, bubble_rect.bottom),  # 左の点
+            (bubble_rect.centerx + 30, bubble_rect.bottom)  # 右の点
+        ]
+        pygame.draw.polygon(self.screen, BUBBLE_COLOR, triangle_points)
+        #pygame.draw.polygon(self.screen, BUBBLE_COLOR, triangle_points,thickness)
+        
+        # テキストを吹き出しの中に描画
+        text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
+        self.screen.blit(text_surface, text_position)
+
+        self.drawAll()
+        self.drawGrid()
+        pygame.display.update()
+        
+    def stop_next_block_draw(self, next_editor):
+        
+# 画面サイズ
+        width = self.screen.get_width()
+        height = self.screen.get_height()
+            
+        # 色の定義
+        BLACK = (0, 0, 0)
+        BUBBLE_COLOR = (100, 100, 230)  # 吹き出しの色
+
+        # フォントの設定
+        font_size = 120
+        font_jp = pygame.font.SysFont("ipaexg.ttf", font_size)
+
+        # 吹き出しのテキスト
+        text = " Print this! "
+
+        text_surface = font_jp.render(text, True, BLACK)
+        text_rect = text_surface.get_rect()
+
+        x = width - next_editor.size[0]*3
+        y = next_editor.end_pos[1]+50
+
+        bubble_padding = 20
+        bubble_rect = pygame.Rect((x,y), (text_rect.width + 2 * bubble_padding, text_rect.height + 2 * bubble_padding))
+
+        # 吹き出しの本体部分
+        pygame.draw.rect(self.screen, BUBBLE_COLOR, bubble_rect)
+        #pygame.draw.rect(self.screen, BUBBLE_COLOR, bubble_rect,thickness)
+        print("!!!!!!!!!!!!")
+        print(bubble_rect.midright)
+        print(bubble_rect.right)
+
+        # 吹き出しの三角形の部分
+        triangle_points = [
+            (bubble_rect.right+50, bubble_rect.midright[1]),  # 三角形の先端
+            (bubble_rect.right, bubble_rect.midright[1]-30),  # 左の点
+            (bubble_rect.right, bubble_rect.midright[1]+30)  # 右の点
+        ]
+        print(triangle_points)
+        pygame.draw.polygon(self.screen, BUBBLE_COLOR, triangle_points)
+        #pygame.draw.polygon(self.screen, BUBBLE_COLOR, triangle_points,thickness)
+        
+        # テキストを吹き出しの中に描画
+        text_position = (bubble_rect.left + bubble_padding, bubble_rect.top + bubble_padding)
+        self.screen.blit(text_surface, text_position)
+        
+        self.drawAll()
+        self.drawGrid()
+        pygame.display.update()
+        
+        
     # ルーレット停止処理
-    def stop(self):
+    def stop(self, next_editor):
         self.roulette_active = False
         self.draw()
+        next_editor.draw()
+        self.stop_draw()
+        self.roulette_coutner = 0
+        time.sleep(BeforePrinting.sleep_amout)
+        
+        # ルーレット停止処理
+    def stop_next_block(self,next_editor):
+        
+        self.roulette_active = False
+        self.draw()
+        next_editor.draw()
+        self.stop_next_block_draw(next_editor)
         self.roulette_coutner = 0
         time.sleep(BeforePrinting.sleep_amout)
         

@@ -109,6 +109,7 @@ def main():
     sound_fx_pa = pygame.mixer.Sound('soundfx/pa.mp3')
     sound_fx_kin = pygame.mixer.Sound('soundfx/kin.mp3')
     sound_fx_kako = pygame.mixer.Sound('soundfx/kako.mp3')
+    sound_fx_pipin = pygame.mixer.Sound('soundfx/pipin.mp3')
     
     # 画面設定
     width, height = 1920, 1080 #1080
@@ -131,6 +132,7 @@ def main():
             img_list.append(img)
         except pygame.error as e:
             print(f"Error loading image {img_file}: {e}")
+    no_img = pygame.image.load(gcode_folder_path + "/noimage.png")
 
     # Printerクラスのインスタンス化
     printer = Printer()
@@ -206,6 +208,7 @@ def main():
         s.set_printer(printer)
         s.set_nfc(nfc_read)
         s.set_gcode_file(gcode_file_list,img_list)
+        s.set_noimage(no_img)
         s.load_icons(icon)
         s.set_lang(LANGUAGE)
         s.set_font(FONT_STYLE)
@@ -302,35 +305,33 @@ def main():
                 task_logger = setup_logger(task_file)
 
                 # NEXTブロックの処理 =========================
-                if next_tetris_editor.next_list[0].gcode_file is not None:
+                if next_tetris_editor.is_at_end and next_tetris_editor.next_list[0].gcode_file is not None:
 
                     next_b = next_tetris_editor.next_list[0]
                     # 造形データ取得
                     fname = next_b.get_gcode_path()
                     
-
                     # ログは可能な限り早く残す
                     log_message(task_logger, 'Print start,' + fname)
-                    print(fname,"を印刷するよ！")
+                    print(fname,"を造形するよ！")
                     s_result.set_starter(nfc_read.id_str)
 
                     # Slackにポスト
                     slack.post(":bulb: 造形開始！\n"+fname)
                     
                     # クリックされた
-                    sound_fx_pa.play()
-                    next_tetris_editor.draw()
+                    sound_fx_pipin.play()
                     # ここで処理が一時停止するのでログは事前にのこす
-                    s_before.stop()
+                    s_before.stop_next_block(next_tetris_editor)
 
                     s_before.printer.change_feedrate(50)
                     s_during.set_gcode_file_name("NEXT")
                     printer.open_gcode_file(fname)
                     printer.start_printing()
     
-                    s_before.setIndexOfFile(0)
-                    s_during.setIndexOfFile(0)
-                    s_after.setIndexOfFile(0)
+                    s_before.setIndexOfFile(-1)
+                    s_during.setIndexOfFile(-1)
+                    s_after.setIndexOfFile(-1)
                     print("next block の造形")
                     next_tetris_editor.remove()
 
@@ -350,7 +351,7 @@ def main():
                     sound_fx_pa.play()
 
                     # ここで処理が一時停止するのでログは事前にのこす
-                    s_before.stop()
+                    s_before.stop(next_tetris_editor)
 
                     s_before.printer.change_feedrate(50)
                     s_during.set_gcode_file_name(fname)

@@ -245,7 +245,9 @@ class DuringPrinting(Scene):
         #print(self.images[self.selected_index])
         if self.selected_index != -1:
             img = self.images[self.selected_index]
-
+        else:
+            img = self.noimage
+            
         self.screen.blit(img, (rect_x, rect_y))
 
         # チェックおじさん描画

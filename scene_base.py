@@ -52,11 +52,13 @@ class Scene():
     def set_nfc(self, n: NFCReading):
         self.nfc_res = n
 
-
     # 造形候補のGcodeファイル名と画像ファイル名を設定
     def set_gcode_file(self, g: list, img: list):
         self.gcode_file = list(g)
         self.images = list(img)
+        
+    def set_noimage(self, img):
+        self.noimage = img
 
     def drawAll(self):
         self.drawTemperature()
@@ -199,7 +201,7 @@ class Scene():
                 if i == 0:
                     te = "開始"
                 if i == 1:
-                    te = "印刷"
+                    te = "造形"
                 if i == 2:
                     te = "取外"
                 if i == 3:

@@ -1,4 +1,5 @@
 import pygame
+import random
 import subprocess
 import compute_rhino3d.Util
 import compute_rhino3d.Grasshopper as gh
@@ -23,8 +24,16 @@ class TetrisEdit():
 
         self.grid_size = grid_size
         self.gcode_file = None
+        self.process_stat = -1
 
         self.grid = [[0] * grid_num_y for _ in range(grid_num_x)]
+        
+        while not self.validate():
+            self.randomize()
+        self.making()
+        
+    def randomize(self):
+        self.grid = [[random.randint(0, 1) for _ in range(self.grid_num_y)] for _ in range(self.grid_num_x)]
 
     def draw(self, ox, oy):
         GRAY = (200,200,200)
@@ -33,7 +42,7 @@ class TetrisEdit():
         WHITE=(255,255,255)
         LIGHT_YELLOW = (255,255,100)
         RED = (255,0,0)
-        GREEN = (0,255,0)
+        GREEN = (0,155,0)
         BLUE = (0,0,255)
         LIGHT_BLUE = (150,150,255)
         
@@ -58,14 +67,30 @@ class TetrisEdit():
             text_rect = text_surface.get_rect(center=(ox+(self.grid_num_x*self.grid_size)/2,oy+(self.grid_num_y*self.grid_size)/2))  # 各文字の位置
             self.screen.blit(text_surface, text_rect)
 
+        text = ""
+        font = pygame.font.Font(self.font_style, 24)
+
+        if self.process_stat == 1:
+            text = " Modeling ... "
+        if self.process_stat == 2:
+            text = " Slicing ... "
+        if self.process_stat == 3:
+            text = " and ..."
+
+        text_surface = font.render(text, True, GREEN)  # 文字を描画
         if self.gcode_file is not None:
-            text = " Ready "
-            font = pygame.font.Font(self.font_style, 24)
+            text = " Ready! "
             text_surface = font.render(text, True, BLUE)  # 文字を描画
-            text_rect = text_surface.get_rect(center=(ox+(self.grid_num_x*self.grid_size)/2,oy+(self.grid_num_y*self.grid_size)/2))  # 各文字の位置
-            self.screen.blit(text_surface, text_rect)
 
-
+        text_rect = text_surface.get_rect(center=(ox+(self.grid_num_x*self.grid_size)/2,oy+(self.grid_num_y*self.grid_size)/2))  # 各文字の位置
+        self.screen.blit(text_surface, text_rect)
+        
+        text = str(self.num+1)
+        font = pygame.font.Font(self.font_style, 24)
+        text_surface = font.render(text, True, BLACK)  # 文字を描画
+        text_rect = text_surface.get_rect(center=(ox-24,oy+(self.grid_num_y*self.grid_size)-24))  # 各文字の位置
+        self.screen.blit(text_surface, text_rect)
+            
     def validate(self):
         self.is_valid = False
         if self.is_all_zero():
@@ -170,11 +195,48 @@ class TetrisEdit():
     # モデルを生成してGcodeを作っておく
     def process(self):
         print("モデリングするよ")
+        self.process_stat = 1
         self.modeling()
         print("スライスするよ")
+        self.process_stat = 2
         self.slicing()
+        print("Gcodeファイルの温度を調整するよ")
+        # 使用例
+        self.process_stat = 3
+        self.replace_lines_by_content()
+        
         self.is_making = False
         self.gcode_file = "./M_S/output_" +str(self.num)+".gcode"
+        self.process_stat = -1
+
+
+    def replace_lines_by_content(self):
+        file_path = "./M_S/output_" +str(self.num)+".gcode"
+        start_marker = ';Generated with Cura_SteamEngine'
+        end_marker = 'M82 ;absolute extrusion mode'
+        replacement_text = "M140 S60\nM104 S220\nM190 S60\nM109 S220"
+        
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+        
+        # 開始行と終了行のインデックスを探す
+        start_index = next((i for i, line in enumerate(lines) if start_marker in line), None)
+        end_index = next((i for i, line in enumerate(lines) if end_marker in line), None)
+
+        if start_index is None or end_index is None or start_index > end_index:
+            raise ValueError("指定した開始または終了マーカーが見つからない、または順序が不正です。")
+        
+        # 開始行と終了行を含む範囲を置き換える
+        new_lines = (
+            lines[:start_index+1] +  # 開始マーカーより前の部分を保持
+            [replacement_text + '\n'] +  # 置き換え部分
+            lines[end_index:]  # 終了マーカーより後の部分を保持
+        )
+        
+        # ファイルに書き戻す
+        with open(file_path, 'w') as file:
+            file.writelines(new_lines)
+
 
     def save_mesh_as_stl(self, mesh, file_path="test.stl"):
         """

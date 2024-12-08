@@ -87,7 +87,7 @@ class NextEditor(Scrollable):
                 pygame.draw.rect(self.screen, RED, [x,y,te.grid_size*te.grid_num_x,te.grid_size*te.grid_num_y], 5)
 
         text = "! Experimental !"
-        font = pygame.font.Font(self.font_style, 36)
+        font = pygame.font.Font(self.font_style, 24)
         text_surface = font.render(text, True, BLACK)  # 文字を描画
         text_rect = text_surface.get_rect(topleft=(self.pos_x+10, self.pos_y+self.size[1]-60))  # 各文字の位置
         self.screen.blit(text_surface, text_rect)
